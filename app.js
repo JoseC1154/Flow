@@ -82,7 +82,11 @@ function calculate(){
   const remaining=Math.max(0,n.goal-n.ytd);
   const gap=Math.max(0,remaining-schedule.regular*regularPay);
   const neededOT=gap<=0?0:Math.ceil((gap-0.0000001)/overtimePay);
-  const plannedShifts=Math.min(n.otDays,schedule.maxOT);
+  // Weekly plans are prorated over the exact remaining calendar days.
+  // Round down to whole tours; never count a partial tour as worked.
+  const weeklyMode=el("otMode").value==="weekly";
+  const requestedOT=weeklyMode?Math.floor((n.otDays*calendarDays/7)+1e-9):n.otDays;
+  const plannedShifts=Math.min(requestedOT,schedule.maxOT);
   const additionalOT=Math.max(0,neededOT-plannedShifts);
   const achievable=neededOT<=schedule.maxOT;
   const forecast=n.ytd+schedule.regular*regularPay+plannedShifts*overtimePay;
@@ -116,17 +120,25 @@ function calculate(){
   el("goalDifference").textContent=(difference>=0?"+":"−")+money(Math.abs(difference));
   el("gap").textContent=money(gap);
   el("plannedEarnings").textContent=money(plannedShifts*overtimePay);
+  el("plannedOTTotal").textContent=whole(plannedShifts);
   let message;
   if(remaining===0)message="You've already reached your annual goal.";
   else if(calendarDays===0)message="No calendar days remain this year.";
   else if(!achievable)message=`Your earnings goal requires ${whole(neededOT)} overtime tours (${whole(additionalOT)} beyond the ${whole(plannedShifts)} planned). The estimated upper limit is ${whole(schedule.maxOT)} OT tours: up to one extra tour on each of ${whole(schedule.regular)} regular workdays and up to two tours on one day off per week (${whole(schedule.workedDaysOff)} eligible days off in this date range). This estimate does not assume any particular assigned tour. The projected shortfall at maximum capacity is ${money(Math.max(0,gap-schedule.maxOT*overtimePay))}.`;
   else if(additionalOT===0)message=neededOT===0?"Your projected regular tours alone meet the goal.":"Your planned overtime covers the additional tours required for your goal.";
   else message=`With ${whole(schedule.regular)} guaranteed regular tours across ${whole(calendarDays)} remaining calendar days, the upper-bound estimate is ${whole(schedule.maxOT)} possible OT tours. Your ${whole(plannedShifts)} planned OT tours count toward ${whole(neededOT)} needed, leaving ${whole(additionalOT)} more. Only one regular day off per week may be worked; no specific regular tour is assumed.`;
-  if(n.otDays>schedule.maxOT)message+=" Planned overtime was capped at the estimated maximum.";
+  if(requestedOT>schedule.maxOT)message+=" Planned overtime was capped at the estimated maximum.";
+  if(weeklyMode)message+=` Weekly plan: ${whole(n.otDays)} tours/week × ${(calendarDays/7).toFixed(2)} weeks = ${whole(requestedOT)} whole tours before applying the capacity limit.`;
   el("guidance").textContent=message;
 }
 el("calculator").addEventListener("submit",event=>{event.preventDefault();calculate()});
 el("calculator").addEventListener("input",calculate);
 el("dateMode").addEventListener("change",updateDateMode);
+el("otMode").addEventListener("change",()=>{
+  const weekly=el("otMode").value==="weekly";
+  el("otInputLabel").textContent=weekly?"Planned OT shifts per week":"Planned OT shifts through year-end";
+  el("otModeExplanation").textContent=weekly?"Weekly OT is prorated over the remaining calendar days and rounded down to whole shifts.":"Enter the total overtime tours planned through December 31.";
+  calculate();
+});
 el("customDate").addEventListener("change",calculate);
 updateDateMode();
