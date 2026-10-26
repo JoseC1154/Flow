@@ -10,10 +10,18 @@ function daysUntilYearEnd(today){
 function remainingSchedule(today){
   const calendarDays=daysUntilYearEnd(today);
   let regular=0;
+  const eligibleDaysOffWeeks=new Set();
   const end=new Date(today.getFullYear(),11,31);
   for(let date=new Date(today.getFullYear(),today.getMonth(),today.getDate()+1);
       date<=end;date.setDate(date.getDate()+1)){
-    if(date.getDay()!==0&&date.getDay()!==6)regular++;
+    if(date.getDay()!==0&&date.getDay()!==6){
+      regular++;
+    }else{
+      // Monday–Sunday week key: at most one of the two days off may be worked.
+      const weekStart=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+      weekStart.setDate(weekStart.getDate()-(weekStart.getDay()+6)%7);
+      eligibleDaysOffWeeks.add(`${weekStart.getFullYear()}-${weekStart.getMonth()+1}-${weekStart.getDate()}`);
+    }
   }
   // Tour-neutral upper bound: at most two 8-hour tours per calendar day.
   // Every regular tour occupies one slot. Five regular tours per week are
@@ -21,9 +29,11 @@ function remainingSchedule(today){
   // Two consecutive tours are permitted, but never a third consecutive tour.
   const daysOff=calendarDays-regular;
   const regularDayOT=regular;
-  const dayOffOT=daysOff*2;
+  // One day-off shift opportunity per calendar workweek, up to two OT tours.
+  const workedDaysOff=Math.min(daysOff,eligibleDaysOffWeeks.size);
+  const dayOffOT=workedDaysOff*2;
   const maxOT=regularDayOT+dayOffOT;
-  return {regular,daysOff,regularDayOT,dayOffOT,slots:calendarDays*3,maxOT};
+  return {regular,daysOff,workedDaysOff,regularDayOT,dayOffOT,slots:calendarDays*3,maxOT};
 }
 function selectedAsOfDate(){
   if(el("dateMode").value!=="custom") return dateNow();
@@ -109,9 +119,9 @@ function calculate(){
   let message;
   if(remaining===0)message="You've already reached your annual goal.";
   else if(calendarDays===0)message="No calendar days remain this year.";
-  else if(!achievable)message=`Your earnings goal requires ${whole(neededOT)} overtime tours (${whole(additionalOT)} beyond the ${whole(plannedShifts)} planned). The estimated upper limit is ${whole(schedule.maxOT)} OT tours: up to one extra tour on each of ${whole(schedule.regular)} regular workdays and up to two on each of ${whole(schedule.daysOff)} days off. This estimate does not assume any particular assigned tour. The projected shortfall at maximum capacity is ${money(Math.max(0,gap-schedule.maxOT*overtimePay))}.`;
+  else if(!achievable)message=`Your earnings goal requires ${whole(neededOT)} overtime tours (${whole(additionalOT)} beyond the ${whole(plannedShifts)} planned). The estimated upper limit is ${whole(schedule.maxOT)} OT tours: up to one extra tour on each of ${whole(schedule.regular)} regular workdays and up to two tours on one day off per week (${whole(schedule.workedDaysOff)} eligible days off in this date range). This estimate does not assume any particular assigned tour. The projected shortfall at maximum capacity is ${money(Math.max(0,gap-schedule.maxOT*overtimePay))}.`;
   else if(additionalOT===0)message=neededOT===0?"Your projected regular tours alone meet the goal.":"Your planned overtime covers the additional tours required for your goal.";
-  else message=`With ${whole(schedule.regular)} guaranteed regular tours across ${whole(calendarDays)} remaining calendar days, the upper-bound estimate is ${whole(schedule.maxOT)} possible OT tours. Your ${whole(plannedShifts)} planned OT tours count toward ${whole(neededOT)} needed, leaving ${whole(additionalOT)} more. No specific regular tour is assumed.`;
+  else message=`With ${whole(schedule.regular)} guaranteed regular tours across ${whole(calendarDays)} remaining calendar days, the upper-bound estimate is ${whole(schedule.maxOT)} possible OT tours. Your ${whole(plannedShifts)} planned OT tours count toward ${whole(neededOT)} needed, leaving ${whole(additionalOT)} more. Only one regular day off per week may be worked; no specific regular tour is assumed.`;
   if(n.otDays>schedule.maxOT)message+=" Planned overtime was capped at the estimated maximum.";
   el("guidance").textContent=message;
 }
