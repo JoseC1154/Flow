@@ -8,26 +8,21 @@ A responsive, browser-based calculator for estimating how many regular workdays 
 
 Open `index.html` in a browser. Enter year-to-date gross earnings, annual gross earnings goal, base hourly pay, hours per regular workday, hours per overtime shift, and the number of overtime shifts you plan to work. Results update automatically.
 
-## Calculations
+## Schedule and calculations
 
-- **Regular day pay:** hourly rate × hours per regular day.
-- **Overtime shift pay:** hourly rate × 1.5 × overtime shift hours (defaults to 8 hours).
-- **Remaining amount:** max(0, annual goal − YTD gross earnings).
-- **Days left:** automatically counted calendar days after today through December 31, including weekends. The value is read-only.
-- **Weeks left:** calendar days after today through December 31 divided by 7.
-- **Available shift slots:** remaining calendar days × 3 (AM, PM, midnight). E.g. 48 days = 144 eight-hour slots.
-- **OT capacity:** shift-slot hours minus regular-work hours; for 48 eight-hour regular days, 96 additional eight-hour OT shifts fit, assuming all slots are available.
-- **Total OT shifts needed:** max(0, ceiling((remaining goal − remaining regular earnings) ÷ OT shift pay)).
-- **Additional OT shifts:** max(0, total OT shifts needed − planned OT shifts), provided total needed shifts fit the remaining OT-hour capacity.
-- **Regular shifts assumed:** one regular shift per remaining calendar day, unaffected by planned overtime.
-- **Planned OT shifts:** capped at available OT-hour capacity (not capped to one overtime shift per day). Impossible goals are flagged only when required OT exceeds available OT shift capacity.
-- **Projected gross earnings:** YTD + all assumed remaining regular-shift pay + planned OT earnings.
-
-The device date determines days remaining, and all seven days of the week count in the 24/7 operation. The day count is not editable. Assumes today's pay is already reflected in YTD earnings. OT hours are *extra* hours on top of regular working days. Shift-slot capacity is a theoretical maximum, not a guarantee of employer scheduling, staffing, rest periods, or legal eligibility. Working past the end of the year is not considered. Some combinations of required days are not feasible; the app flags common infeasible plans.
+- Business operates 24/7 with 8-hour shifts: 23:00–07:00, 07:00–15:00, and 15:00–23:00.
+- Employees have five regular shifts a week. Because individual rotating workdays and assigned shifts aren't collected yet, this version **assumes Monday–Friday, 07:00–15:00** for the employee. The regular-shift count is automatically calculated to December 31 and is not editable.
+- Calendar days remaining count all days after today through December 31, including weekends. Business shift slots = remaining calendar days × 3.
+- No employee can work adjacent 8-hour shifts: an 8-hour shift must be followed by at least 8 hours off. The calculator uses chronological shift slots and dynamic programming to find the maximum additional OT shifts that fit around the fixed assumed regular schedule, including across midnight.
+- Gross regular pay = remaining regular shifts × hourly rate × 8.
+- OT pay per shift = hourly rate × 1.5 × 8.
+- Required OT shifts = ceiling(max(0, annual goal − YTD − projected remaining regular pay) ÷ OT shift pay).
+- Additional OT shifts = max(0, required OT shifts − planned OT shifts), subject to rest-rule capacity.
+- If required OT shifts exceed the rest-rule capacity, the app reports that the goal is not possible under these assumptions.
 
 ## Limitations
 
-Estimates are before taxes and deductions. The app does not track varying weekly schedules, missed work, paid holidays, paid time off, changing wages, payroll cutoffs, annual overtime exclusions, or employer-specific overtime policies. It stores no personal data and sends no information to a server.
+A 24/7 operation does not mean every employee works every day. This is a planning estimate, not a verified individual roster; employees who rotate days off or work PM/midnight regular shifts may have a different feasible OT schedule. Shift opportunity is not a guarantee of assignment. The tool does not apply payroll cutoff dates, overtime law eligibility, pay premiums, taxes, paid leave, or holidays.
 
 ## Files
 
