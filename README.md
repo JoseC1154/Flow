@@ -35,11 +35,16 @@ The operation is open seven days per week, with shifts at 23:00–07:00, 07:00�
 
 A 24/7 operation does not mean every employee works every day. This is an upper-bound planning estimate, not a verified roster. Because midnight shifts cross dates, exact assigned rotations and start/end-of-year boundaries can change the achievable shift count. Employee rules may prohibit certain doubles or require longer recovery time. Shift opportunity is not a guarantee of assignment. The tool does not apply payroll cutoff dates, overtime law eligibility, pay premiums, taxes, paid leave, or holidays.
 
+## UI design rules for contributors and AI agents
+
+See [AGENTS.md](AGENTS.md) before modifying controls or calculations. All dropdowns must use the shared PayPath theme, all editable number inputs use mint +/- stepper buttons instead of dark browser-default spinners, and date-picker icons must be clearly visible. Check keyboard access, contrast, mobile layout, and cache-busting of changed assets.
+
 ## Files
 
 - `index.html` — user interface
 - `styles.css` — responsive visual styling
-- `app.js` — calculations and validation
+- `app.js` — calculations and validation, plus shared number-stepper behavior
+- `AGENTS.md` — persistent requirements for future AI agents
 
 ## Publishing via GitHub Pages
 
