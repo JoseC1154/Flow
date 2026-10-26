@@ -25,6 +25,27 @@ function remainingSchedule(today){
   const maxOT=daysOff+lateClears;
   return {regular,daysOff,lateClears,slots:calendarDays*3,maxOT};
 }
+function selectedAsOfDate(){
+  if(el("dateMode").value!=="custom") return dateNow();
+  const value=el("customDate").value;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const [year,month,day]=value.split("-").map(Number);
+  const parsed=new Date(year,month-1,day);
+  if(parsed.getFullYear()!==year||parsed.getMonth()!==month-1||parsed.getDate()!==day) return null;
+  return parsed;
+}
+function updateDateMode(){
+  const custom=el("dateMode").value==="custom";
+  el("customDateField").hidden=!custom;
+  el("customDate").disabled=!custom;
+  el("dateModeExplanation").textContent=custom?"Using the selected date.":"Using today's date automatically.";
+  if(custom&&!el("customDate").value){
+    const now=dateNow();
+    const pad=(n)=>String(n).padStart(2,"0");
+    el("customDate").value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  }
+  updateDateMode();
+}
 function calculate(){
   const ids=["ytd","goal","rate","hours","otHours","otDays"];
   const n=Object.fromEntries(ids.map(id=>[id,Number(el(id).value)]));
@@ -37,7 +58,12 @@ function calculate(){
     return;
   }
   error.hidden=true;
-  const today=dateNow();
+  const today=selectedAsOfDate();
+  if(!today){
+    error.hidden=false;
+    error.textContent="Please select a valid calculation date.";
+    return;
+  }
   const calendarDays=daysUntilYearEnd(today);
   const schedule=remainingSchedule(today);
   const regularPay=n.rate*8;
@@ -79,4 +105,5 @@ function calculate(){
 }
 el("calculator").addEventListener("submit",event=>{event.preventDefault();calculate()});
 el("calculator").addEventListener("input",calculate);
+el("dateMode").addEventListener("change",updateDateMode);
 calculate();
