@@ -8,9 +8,13 @@ A responsive, browser-based calculator for estimating how many regular workdays 
 
 Open `index.html` in a browser. Choose **Automatic (today)** or **Choose a date** for the as-of calculation date. The custom date uses the selected date's calendar year, with remaining shifts counted starting the next day through December 31. Enter year-to-date gross earnings, annual gross earnings goal, base hourly pay, hours per regular workday, hours per overtime shift, and the number of overtime shifts you plan to work. Results update automatically.
 
+## Vacation option
+
+Use **Include vacation in OT forecast?** to choose **No — ignore vacation** (default, original calculation) or **Yes — subtract vacation weeks**. When enabled, enter whole vacation weeks remaining. OT cannot be worked during vacation weeks. Weekly planned OT uses `remaining calendar days / 7 − vacation weeks` (floored to whole tours). The estimated maximum possible overtime is reduced by up to **7 tours per vacation week** (5 regular-day OT opportunities plus 2 on the permitted worked day off), capped at the original OT maximum. Vacation dates are not captured yet; the adjustment is an estimate, especially for partial weeks. Calendar days and weeks remaining do not change. **Remaining guaranteed regular earnings are assumed paid during vacation**; no PTO balance or unpaid leave is modeled.
+
 ## Planned overtime entry
 
-Choose **Total through year-end** to enter the entire planned overtime tour count, or **Per week** to enter a weekly tour count. Weekly entry converts to a year-end total using `floor(OT tours per week × remaining calendar days / 7)`. Partial weeks are prorated and fractional tours are rounded down. Both modes cap the planned total at the existing estimated available OT capacity. The converted planned total is shown in the earnings breakdown and used in the year-end gross projection and remaining OT requirement.
+Choose **Total through year-end** to enter the entire planned overtime tour count, or **Per week** to enter a weekly tour count. Weekly entry converts to a year-end total using `floor(OT tours per week × OT-eligible weeks)`, where OT-eligible weeks exclude vacation only if enabled. Partial weeks are prorated and fractional tours are rounded down. Both modes cap the planned total at the existing estimated available OT capacity. The converted planned total is shown in the earnings breakdown and used in the year-end gross projection and remaining OT requirement.
 
 ## Estimated year-end earnings
 
