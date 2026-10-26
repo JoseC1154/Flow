@@ -77,6 +77,19 @@ function calculate(){
   }
   const calendarDays=daysUntilYearEnd(today);
   const schedule=remainingSchedule(today);
+  const vacationEnabled=el("vacationMode").value==="include";
+  const vacationInput=el("vacationWeeks");
+  const vacationWeeks=vacationEnabled?Number(vacationInput.value):0;
+  if(vacationEnabled&&(vacationInput.value.trim()===""||!Number.isInteger(vacationWeeks)||vacationWeeks<0||vacationWeeks>Math.ceil(calendarDays/7))){
+    error.hidden=false;
+    error.textContent="Enter a whole number of vacation weeks within the remaining date range.";
+    return;
+  }
+  // Each full vacation week removes up to 5 regular-day OT tours and
+  // 2 day-off OT tours. The exact roster is unknown, so this is an estimate.
+  const effectiveOTWeeks=Math.max(0,calendarDays/7-vacationWeeks);
+  const vacationOTLoss=Math.min(schedule.maxOT,7*vacationWeeks);
+  const availableOT=Math.max(0,schedule.maxOT-vacationOTLoss);
   const regularPay=n.rate*8;
   const overtimePay=n.rate*1.5*8;
   const remaining=Math.max(0,n.goal-n.ytd);
@@ -85,10 +98,10 @@ function calculate(){
   // Weekly plans are prorated over the exact remaining calendar days.
   // Round down to whole tours; never count a partial tour as worked.
   const weeklyMode=el("otMode").value==="weekly";
-  const requestedOT=weeklyMode?Math.floor((n.otDays*calendarDays/7)+1e-9):n.otDays;
-  const plannedShifts=Math.min(requestedOT,schedule.maxOT);
+  const requestedOT=weeklyMode?Math.floor((n.otDays*effectiveOTWeeks)+1e-9):n.otDays;
+  const plannedShifts=Math.min(requestedOT,availableOT);
   const additionalOT=Math.max(0,neededOT-plannedShifts);
-  const achievable=neededOT<=schedule.maxOT;
+  const achievable=neededOT<=availableOT;
   const forecast=n.ytd+schedule.regular*regularPay+plannedShifts*overtimePay;
   const percent=Math.min(100,n.ytd/n.goal*100);
   const startText=today.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
@@ -104,7 +117,9 @@ function calculate(){
   el("weeks").textContent=(calendarDays/7).toFixed(1);
   el("weekdays").textContent=whole(calendarDays);
   el("shiftSlots").textContent=whole(schedule.slots);
-  el("otCapacity").textContent=whole(schedule.maxOT);
+  el("otCapacity").textContent=whole(availableOT);
+  el("otWeeksAvailable").textContent=effectiveOTWeeks.toFixed(1);
+  el("vacationWeeksExcluded").textContent=whole(vacationWeeks);
   el("daysOff").textContent=whole(schedule.dayOffOT);
   el("lateClears").textContent=whole(schedule.regularDayOT);
   el("dayPay").textContent=money(regularPay);
@@ -124,14 +139,25 @@ function calculate(){
   let message;
   if(remaining===0)message="You've already reached your annual goal.";
   else if(calendarDays===0)message="No calendar days remain this year.";
-  else if(!achievable)message=`Your earnings goal requires ${whole(neededOT)} overtime tours (${whole(additionalOT)} beyond the ${whole(plannedShifts)} planned). The estimated upper limit is ${whole(schedule.maxOT)} OT tours: up to one extra tour on each of ${whole(schedule.regular)} regular workdays and up to two tours on one day off per week (${whole(schedule.workedDaysOff)} eligible days off in this date range). This estimate does not assume any particular assigned tour. The projected shortfall at maximum capacity is ${money(Math.max(0,gap-schedule.maxOT*overtimePay))}.`;
+  else if(!achievable)message=`Your earnings goal needs ${whole(neededOT)} overtime tours (${whole(additionalOT)} beyond ${whole(plannedShifts)} planned), but the estimated OT capacity is ${whole(availableOT)} after excluding ${whole(vacationWeeks)} vacation weeks. Estimated shortfall at full OT capacity: ${money(Math.max(0,gap-availableOT*overtimePay))}.`;
   else if(additionalOT===0)message=neededOT===0?"Your projected regular tours alone meet the goal.":"Your planned overtime covers the additional tours required for your goal.";
-  else message=`With ${whole(schedule.regular)} guaranteed regular tours across ${whole(calendarDays)} remaining calendar days, the upper-bound estimate is ${whole(schedule.maxOT)} possible OT tours. Your ${whole(plannedShifts)} planned OT tours count toward ${whole(neededOT)} needed, leaving ${whole(additionalOT)} more. Only one regular day off per week may be worked; no specific regular tour is assumed.`;
-  if(requestedOT>schedule.maxOT)message+=" Planned overtime was capped at the estimated maximum.";
-  if(weeklyMode)message+=` Weekly plan: ${whole(n.otDays)} tours/week × ${(calendarDays/7).toFixed(2)} weeks = ${whole(requestedOT)} whole tours before applying the capacity limit.`;
+  else message=`With ${whole(schedule.regular)} guaranteed regular tours across ${whole(calendarDays)} remaining calendar days, the upper-bound estimate is ${whole(availableOT)} possible OT tours after vacation adjustments. Your ${whole(plannedShifts)} planned OT tours count toward ${whole(neededOT)} needed, leaving ${whole(additionalOT)} more. Only one regular day off per week may be worked; no specific regular tour is assumed.`;
+  if(requestedOT>availableOT)message+=" Planned overtime was capped at the estimated available OT capacity.";
+  if(weeklyMode)message+=` Weekly plan: ${whole(n.otDays)} tours/week × ${effectiveOTWeeks.toFixed(2)} OT-eligible weeks = ${whole(requestedOT)} whole tours before applying the capacity limit.`;
+  if(vacationEnabled)message+=` No overtime is counted during ${whole(vacationWeeks)} vacation weeks; regular pay assumes paid vacation.`;
   el("guidance").textContent=message;
 }
 // Accessible, theme-matched +/- controls for editable numeric inputs.
+function updateVacationMode(){
+  const included=el("vacationMode").value==="include";
+  el("vacationWeeksField").hidden=!included;
+  el("vacationWeeksField").style.display=included?"":"none";
+  el("vacationWeeks").disabled=!included;
+  el("vacationExplanation").textContent=included
+    ?"Vacation weeks reduce overtime availability and weekly planned OT. No OT during vacation. Regular earnings assume paid vacation."
+    :"Vacation is excluded from the forecast; no overtime is deducted for vacation. You can include it above.";
+  calculate();
+}
 function installNumberSteppers(){
   document.querySelectorAll('.input input[type="number"]:not([readonly])').forEach(input=>{
     const controls=document.createElement("span");
@@ -170,4 +196,6 @@ el("otMode").addEventListener("change",()=>{
   calculate();
 });
 el("customDate").addEventListener("change",calculate);
+el("vacationMode").addEventListener("change",updateVacationMode);
+updateVacationMode();
 updateDateMode();
