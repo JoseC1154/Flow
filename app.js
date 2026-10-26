@@ -131,6 +131,35 @@ function calculate(){
   if(weeklyMode)message+=` Weekly plan: ${whole(n.otDays)} tours/week × ${(calendarDays/7).toFixed(2)} weeks = ${whole(requestedOT)} whole tours before applying the capacity limit.`;
   el("guidance").textContent=message;
 }
+// Accessible, theme-matched +/- controls for editable numeric inputs.
+function installNumberSteppers(){
+  document.querySelectorAll('.input input[type="number"]:not([readonly])').forEach(input=>{
+    const controls=document.createElement("span");
+    controls.className="number-stepper";
+    for(const [sign,direction] of [["−",-1],["+",1]]){
+      const button=document.createElement("button");
+      button.type="button";
+      button.className="stepper-button";
+      button.textContent=sign;
+      button.setAttribute("aria-label",`${direction>0?"Increase":"Decrease"} ${input.closest("label")?.textContent.trim()||"value"}`);
+      button.addEventListener("click",()=>{
+        const step=Number(input.step)||1;
+        const base=Number(input.value)||0;
+        const min=input.min===""?-Infinity:Number(input.min);
+        const max=input.max===""?Infinity:Number(input.max);
+        const precision=(String(step).split(".")[1]||"").length;
+        const candidate=Math.min(max,Math.max(min,Number((base+direction*step).toFixed(precision))));
+        if(candidate!==base){
+          input.value=String(candidate);
+          input.dispatchEvent(new Event("input",{bubbles:true}));
+        }
+      });
+      controls.appendChild(button);
+    }
+    input.parentElement.appendChild(controls);
+  });
+}
+installNumberSteppers();
 el("calculator").addEventListener("submit",event=>{event.preventDefault();calculate()});
 el("calculator").addEventListener("input",calculate);
 el("dateMode").addEventListener("change",updateDateMode);
