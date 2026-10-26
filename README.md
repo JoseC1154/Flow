@@ -17,8 +17,8 @@ Open `index.html` in a browser. Enter year-to-date gross earnings, annual gross 
 - Gross regular pay = remaining regular shifts × hourly rate × 8.
 - OT pay per shift = hourly rate × 1.5 × 8.
 - Required OT shifts = ceiling(max(0, annual goal − YTD − projected remaining regular pay) ÷ OT shift pay).
-- Additional OT shifts = max(0, required OT shifts − planned OT shifts), subject to rest-rule capacity.
-- If required OT shifts exceed the rest-rule capacity, the app reports that the goal is not possible under these assumptions.
+- Additional OT shifts needed = max(0, required OT shifts − planned OT shifts). The numeric need is always displayed even when more shifts would be required than the employee could schedule.
+- Days off can be worked as OT when the 8-hour rest rule permits. If required OT shifts exceed the rest-rule capacity, the app shows the numerical requirement plus a separate explanation of the shortfall, rather than replacing the number with “Not possible.”
 
 ## Limitations
 
