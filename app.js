@@ -22,20 +22,16 @@ function remainingSchedule(today){
       if(isRegular)regular++;
     }
   }
-  // A chosen shift must have at least one intervening 8-hour shift slot
-  // before the next chosen shift (8 hours off between 8-hour shifts).
-  // Regular shifts are mandatory; optimize additional shifts around them.
-  let previousNone=0,previousWorked=-Infinity;
-  for(let i=0;i<slots.length;i++){
-    const isRegular=slots[i];
-    const nextNone=isRegular?-Infinity:Math.max(previousNone,previousWorked);
-    const nextWorked=previousNone+(isRegular?0:1);
-    // DP only needs last shift chosen versus not chosen. Taking the next
-    // adjacent slot would violate the 8-hour rest requirement.
-    previousNone=nextNone;
-    previousWorked=nextWorked;
+  // Dynamic programming: worked and off track the last 8-hour slot.
+  // Consecutive worked slots are forbidden, including regular-to-OT transitions.
+  let off=0,worked=Number.NEGATIVE_INFINITY;
+  for(const isRegular of slots){
+    const nextOff=isRegular?Number.NEGATIVE_INFINITY:Math.max(off,worked);
+    const nextWorked=off+(isRegular?0:1);
+    off=nextOff;
+    worked=nextWorked;
   }
-  return {regular, slots:slots.length, maxOT:Math.max(0,previousNone,previousWorked)};
+  return {regular, slots:slots.length, maxOT:Math.max(0,off,worked)};
 }
 function calculate(){
   const ids=["ytd","goal","rate","hours","otHours","otDays"];
@@ -68,7 +64,6 @@ function calculate(){
   el("remaining").textContent=money(remaining);
   el("weeks").textContent=(calendarDays/7).toFixed(1);
   el("weekdays").textContent=whole(calendarDays);
-  el("workdays").value=schedule.regular;
   el("shiftSlots").textContent=whole(schedule.slots);
   el("otCapacity").textContent=whole(schedule.maxOT);
   el("dayPay").textContent=money(regularPay);
