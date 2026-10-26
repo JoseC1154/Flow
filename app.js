@@ -92,7 +92,12 @@ function calculate(){
   // Always show required OT as a number; feasibility is explained separately.
   el("minimumOT").textContent=whole(additionalOT);
   el("requiredRegular").textContent=whole(schedule.regular);
+  el("yearEndTotal").textContent=money(forecast);
+  el("ytdBreakdown").textContent=money(n.ytd);
+  el("regularEarnings").textContent=money(schedule.regular*regularPay);
   el("projected").textContent=money(forecast);
+  const difference=forecast-n.goal;
+  el("goalDifference").textContent=(difference>=0?"+":"−")+money(Math.abs(difference));
   el("gap").textContent=money(gap);
   el("plannedEarnings").textContent=money(plannedShifts*overtimePay);
   let message;
