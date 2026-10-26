@@ -18,9 +18,9 @@ The operation is open seven days per week, with shifts at 23:00–07:00, 07:00�
 
 - The employee is guaranteed five eight-hour regular shifts each week. Until actual rotation inputs are added, the remaining regular count is estimated from Monday–Friday dates after today through December 31.
 - The selected automatic/custom as-of date controls **all** remaining-calendar-day, guaranteed regular-shift, available OT-shift, and projected-pay calculations. Every day after the chosen as-of date through December 31 contributes three *business* shift slots, including weekends. Automatic mode uses today's local device date; Custom mode allows a manually selected date. The as-of date itself is excluded because YTD is assumed to include that day's earnings. The results show the selected date and its exact remaining date range.
-- **Illustrative midnight + late-clear scenario:** One 23:00–07:00 midnight report and its immediately following 07:00–15:00 late clear can be worked consecutively. The 15:00–23:00 shift is then off, providing the required 8-hour break before the next midnight report. Three consecutive shifts are not allowed.
-- The midnight shift is regular on a guaranteed workday and overtime on an employee day off. The late clear is overtime on both kinds of days.
-- **Potential OT shifts = days off × 1 midnight OT shift + calendar days × 1 late-clear OT shift.** With 66 calendar days and 48 regular days: 18 overtime midnight shifts plus 66 overtime late clears = **84 possible OT shifts** (18 of those late clears occur on the 18 days off, so each day off can contain two OT shifts).
+- **Tour-neutral maximum OT estimate:** Each remaining calendar day can accommodate up to two 8-hour tours, with no third consecutive tour. The five guaranteed regular tours each week occupy one of those potential tours, whatever assigned tour the employee works.
+- **Estimated OT capacity = 2 × calendar days remaining − guaranteed regular tours.** Equivalently, up to one OT tour on each guaranteed workday and up to two on each day off. Example: 66 calendar days and 48 guaranteed tours yield 84 possible OT tours (48 on regular days plus 36 on 18 days off).
+- The guaranteed regular count is approximated with Monday–Friday dates solely for counting five per week; this does **not** assume a Monday–Friday employee schedule or a particular report time. Rotating rosters, overnight shift boundaries, and rest intervals may reduce actual capacity.
 - Gross regular pay = remaining regular shifts × hourly rate × 8.
 - OT pay per shift = hourly rate × 1.5 × 8.
 - OT shifts required = ceiling(max(0, annual goal − YTD − remaining regular pay) ÷ OT pay per shift).
@@ -28,7 +28,7 @@ The operation is open seven days per week, with shifts at 23:00–07:00, 07:00�
 
 ## Limitations
 
-A 24/7 operation does not mean every employee works every day. This scenario is a planning illustration, not a verified roster. Because midnight shifts cross dates, exact assigned rotations and start/end-of-year boundaries can change the achievable shift count. Employee rules may prohibit certain doubles or require longer recovery time. Shift opportunity is not a guarantee of assignment. The tool does not apply payroll cutoff dates, overtime law eligibility, pay premiums, taxes, paid leave, or holidays.
+A 24/7 operation does not mean every employee works every day. This is an upper-bound planning estimate, not a verified roster. Because midnight shifts cross dates, exact assigned rotations and start/end-of-year boundaries can change the achievable shift count. Employee rules may prohibit certain doubles or require longer recovery time. Shift opportunity is not a guarantee of assignment. The tool does not apply payroll cutoff dates, overtime law eligibility, pay premiums, taxes, paid leave, or holidays.
 
 ## Files
 
