@@ -68,7 +68,8 @@ function calculate(){
   el("otCapacity").textContent=whole(schedule.maxOT);
   el("dayPay").textContent=money(regularPay);
   el("otPay").textContent=money(overtimePay);
-  el("minimumOT").textContent=achievable?whole(additionalOT):"Not possible";
+  // Always show required OT as a number; feasibility is explained separately.
+  el("minimumOT").textContent=whole(additionalOT);
   el("requiredRegular").textContent=whole(schedule.regular);
   el("projected").textContent=money(forecast);
   el("gap").textContent=money(gap);
@@ -76,9 +77,9 @@ function calculate(){
   let message;
   if(remaining===0)message="You've already reached your annual goal.";
   else if(calendarDays===0)message="No calendar days remain this year.";
-  else if(!achievable)message=`Under the assumed Mon–Fri 07:00–15:00 regular schedule and 8-hour minimum rest, at most ${whole(schedule.maxOT)} overtime shifts fit. Your goal would require ${whole(neededOT)} OT shifts, leaving ${money(Math.max(0,gap-schedule.maxOT*overtimePay))} short.`;
+  else if(!achievable)message=`Your goal calls for ${whole(neededOT)} total OT shifts, including ${whole(plannedShifts)} planned shifts. That means ${whole(additionalOT)} more OT shifts are needed, but the estimated schedule only allows ${whole(schedule.maxOT)} total OT shifts with 8 hours of rest between shifts. This includes opportunities on your two weekly days off. At the current rate, the goal would remain ${money(Math.max(0,gap-schedule.maxOT*overtimePay))} short even if every estimated OT opportunity were worked.`;
   else if(additionalOT===0)message=neededOT===0?"Your projected regular shifts alone meet the goal.":"Your planned OT shifts cover the overtime required for your goal.";
-  else message=`With ${whole(schedule.regular)} regular shifts and ${whole(plannedShifts)} planned OT shifts, schedule ${whole(additionalOT)} additional OT shifts. The rest-rule maximum is ${whole(schedule.maxOT)} OT shifts.`;
+  else message=`You have ${whole(schedule.regular)} guaranteed regular shifts and ${whole(schedule.maxOT)} possible additional OT shifts under the assumed schedule, including days off. Your ${whole(plannedShifts)} planned OT shifts count toward ${whole(neededOT)} needed, leaving ${whole(additionalOT)} more OT shifts to schedule.`;
   if(n.otDays>schedule.maxOT)message+=" Planned OT was capped to the rest-rule maximum.";
   el("guidance").textContent=message;
 }
