@@ -11,9 +11,9 @@ Open `index.html` in a browser. Enter year-to-date gross earnings, annual gross 
 ## Schedule and calculations
 
 - Business operates 24/7 with 8-hour shifts: 23:00–07:00, 07:00–15:00, and 15:00–23:00.
-- Employees have five regular shifts a week. Because individual rotating workdays and assigned shifts aren't collected yet, this version **assumes Monday–Friday, 07:00–15:00** for the employee. The regular-shift count is automatically calculated to December 31 and is not editable.
+- Employees have five regular shifts a week. Because individual rotating workdays and assigned shifts aren't collected yet, this version **assumes Monday–Friday, 07:00–15:00** for the employee. The regular-shift count is automatically calculated to December 31 and is shown in the results, not as an editable input.
 - Calendar days remaining count all days after today through December 31, including weekends. Business shift slots = remaining calendar days × 3.
-- No employee can work adjacent 8-hour shifts: an 8-hour shift must be followed by at least 8 hours off. The calculator uses chronological shift slots and dynamic programming to find the maximum additional OT shifts that fit around the fixed assumed regular schedule, including across midnight.
+- No employee can work adjacent 8-hour shifts: an 8-hour shift must be followed by at least 8 hours off. The calculator uses chronological shift slots and dynamic programming to find the maximum additional OT shifts that fit around the fixed assumed regular schedule, including across midnight. Mandatory regular shifts must also obey this rest constraint.
 - Gross regular pay = remaining regular shifts × hourly rate × 8.
 - OT pay per shift = hourly rate × 1.5 × 8.
 - Required OT shifts = ceiling(max(0, annual goal − YTD − projected remaining regular pay) ÷ OT shift pay).
