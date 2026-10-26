@@ -6,14 +6,14 @@ A responsive, browser-based calculator for estimating how many regular workdays 
 
 ## How to use
 
-Open `index.html` in a browser. Enter year-to-date gross earnings, annual gross earnings goal, base hourly pay, hours per regular workday, hours per overtime shift, and the number of overtime shifts you plan to work. Results update automatically.
+Open `index.html` in a browser. Choose **Automatic (today)** or **Choose a date** for the as-of calculation date. The custom date uses the selected date's calendar year, with remaining shifts counted starting the next day through December 31. Enter year-to-date gross earnings, annual gross earnings goal, base hourly pay, hours per regular workday, hours per overtime shift, and the number of overtime shifts you plan to work. Results update automatically.
 
 ## Schedule and calculations
 
 The operation is open seven days per week, with shifts at 23:00–07:00, 07:00–15:00, and 15:00–23:00.
 
 - The employee is guaranteed five eight-hour regular shifts each week. Until actual rotation inputs are added, the remaining regular count is estimated from Monday–Friday dates after today through December 31.
-- All calendar days after today through December 31 contribute three *business* shift slots.
+- All calendar days after the chosen as-of date through December 31 contribute three *business* shift slots. Automatic mode uses today's local device date; Custom mode allows a manually selected date. Both modes exclude the as-of date because the YTD amount is assumed to include its earnings.
 - **Illustrative midnight + late-clear scenario:** One 23:00–07:00 midnight report and its immediately following 07:00–15:00 late clear can be worked consecutively. The 15:00–23:00 shift is then off, providing the required 8-hour break before the next midnight report. Three consecutive shifts are not allowed.
 - The midnight shift is regular on a guaranteed workday and overtime on an employee day off. The late clear is overtime on both kinds of days.
 - **Potential OT shifts = days off × 1 midnight OT shift + calendar days × 1 late-clear OT shift.** With 66 calendar days and 48 regular days: 18 overtime midnight shifts plus 66 overtime late clears = **84 possible OT shifts** (18 of those late clears occur on the 18 days off, so each day off can contain two OT shifts).
