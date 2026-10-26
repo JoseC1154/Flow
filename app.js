@@ -8,30 +8,22 @@ function daysUntilYearEnd(today){
   return Math.max(0,Math.round((Date.UTC(today.getFullYear(),11,31)-Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()))/86400000));
 }
 function remainingSchedule(today){
-  const slots=[];
-  const end=new Date(today.getFullYear(),11,31);
+  const calendarDays=daysUntilYearEnd(today);
   let regular=0;
-  // Each business date has shifts starting 07:00, 15:00, 23:00.
-  // Assume regular weekday shift 07:00–15:00 until employee's rotation is known.
+  const end=new Date(today.getFullYear(),11,31);
   for(let date=new Date(today.getFullYear(),today.getMonth(),today.getDate()+1);
       date<=end;date.setDate(date.getDate()+1)){
-    const weekday=date.getDay()!==0&&date.getDay()!==6;
-    for(const startHour of [7,15,23]){
-      const isRegular=weekday&&startHour===7;
-      slots.push(isRegular);
-      if(isRegular)regular++;
-    }
+    if(date.getDay()!==0&&date.getDay()!==6)regular++;
   }
-  // Dynamic programming: worked and off track the last 8-hour slot.
-  // Consecutive worked slots are forbidden, including regular-to-OT transitions.
-  let off=0,worked=Number.NEGATIVE_INFINITY;
-  for(const isRegular of slots){
-    const nextOff=isRegular?Number.NEGATIVE_INFINITY:Math.max(off,worked);
-    const nextWorked=off+(isRegular?0:1);
-    off=nextOff;
-    worked=nextWorked;
-  }
-  return {regular, slots:slots.length, maxOT:Math.max(0,off,worked)};
+  // Illustrative rotating midnight schedule: 23:00–07:00, then late clear
+  // 07:00–15:00, then 15:00–23:00 off (8 hours off before next report).
+  // Each calendar day supplies two 8-hour shifts in this pattern.
+  // Five midnight reports per week are guaranteed regular shifts;
+  // reports on remaining days are OT. Late clears are all OT.
+  const daysOff=calendarDays-regular;
+  const lateClears=calendarDays;
+  const maxOT=daysOff+lateClears;
+  return {regular,daysOff,lateClears,slots:calendarDays*3,maxOT};
 }
 function calculate(){
   const ids=["ytd","goal","rate","hours","otHours","otDays"];
@@ -66,6 +58,8 @@ function calculate(){
   el("weekdays").textContent=whole(calendarDays);
   el("shiftSlots").textContent=whole(schedule.slots);
   el("otCapacity").textContent=whole(schedule.maxOT);
+  el("daysOff").textContent=whole(schedule.daysOff);
+  el("lateClears").textContent=whole(schedule.lateClears);
   el("dayPay").textContent=money(regularPay);
   el("otPay").textContent=money(overtimePay);
   // Always show required OT as a number; feasibility is explained separately.
@@ -77,10 +71,10 @@ function calculate(){
   let message;
   if(remaining===0)message="You've already reached your annual goal.";
   else if(calendarDays===0)message="No calendar days remain this year.";
-  else if(!achievable)message=`Your goal calls for ${whole(neededOT)} total OT shifts, including ${whole(plannedShifts)} planned shifts. That means ${whole(additionalOT)} more OT shifts are needed, but the estimated schedule only allows ${whole(schedule.maxOT)} total OT shifts with 8 hours of rest between shifts. This includes opportunities on your two weekly days off. At the current rate, the goal would remain ${money(Math.max(0,gap-schedule.maxOT*overtimePay))} short even if every estimated OT opportunity were worked.`;
+  else if(!achievable)message=`Your goal requires ${whole(neededOT)} OT shifts (${whole(additionalOT)} beyond ${whole(plannedShifts)} planned). The rotating midnight + late-clear example offers up to ${whole(schedule.maxOT)} OT shifts: ${whole(schedule.daysOff)} midnight reports on days off plus ${whole(schedule.lateClears)} late clears. The remaining estimated earnings shortfall is ${money(Math.max(0,gap-schedule.maxOT*overtimePay))}.`;
   else if(additionalOT===0)message=neededOT===0?"Your projected regular shifts alone meet the goal.":"Your planned OT shifts cover the overtime required for your goal.";
-  else message=`You have ${whole(schedule.regular)} guaranteed regular shifts and ${whole(schedule.maxOT)} possible additional OT shifts under the assumed schedule, including days off. Your ${whole(plannedShifts)} planned OT shifts count toward ${whole(neededOT)} needed, leaving ${whole(additionalOT)} more OT shifts to schedule.`;
-  if(n.otDays>schedule.maxOT)message+=" Planned OT was capped to the rest-rule maximum.";
+  else message=`Example capacity: ${whole(schedule.regular)} guaranteed midnight shifts, ${whole(schedule.daysOff)} overtime midnight shifts on days off, and ${whole(schedule.lateClears)} overtime late clears. This allows up to ${whole(schedule.maxOT)} OT shifts when a midnight report is followed by a late clear and then 8 hours off. Your plan has ${whole(plannedShifts)} OT shifts, leaving ${whole(additionalOT)} additional shifts needed.`;
+  if(n.otDays>schedule.maxOT)message+=" Planned OT was capped at the illustrated shift capacity.";
   el("guidance").textContent=message;
 }
 el("calculator").addEventListener("submit",event=>{event.preventDefault();calculate()});
