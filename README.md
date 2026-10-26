@@ -6,22 +6,24 @@ A responsive, browser-based calculator for estimating how many regular workdays 
 
 ## How to use
 
-Open `index.html` in a browser. Enter year-to-date gross earnings, annual gross earnings goal, base hourly pay, hours per regular workday, extra hours per overtime day, and the number of overtime days you plan to work. Results update automatically.
+Open `index.html` in a browser. Enter year-to-date gross earnings, annual gross earnings goal, base hourly pay, hours per regular workday, hours per overtime shift, and the number of overtime shifts you plan to work. Results update automatically.
 
 ## Calculations
 
 - **Regular day pay:** hourly rate × hours per regular day.
-- **Extra overtime day pay:** hourly rate × 1.5 × extra overtime hours.
+- **Overtime shift pay:** hourly rate × 1.5 × overtime shift hours (defaults to 8 hours).
 - **Remaining amount:** max(0, annual goal − YTD gross earnings).
 - **Workdays left:** user-entered fixed number of available regular workdays (defaults to 48). Changing planned overtime does not affect this number.
 - **Weeks left:** calendar days after today through December 31 divided by 7.
-- **Total OT days needed:** max(0, ceiling((remaining goal − all remaining weekday regular pay) ÷ extra OT day pay)).
-- **Additional OT days:** max(0, total OT days needed − planned OT days), if the goal is achievable within remaining workdays.
+- **Available shift slots:** remaining workdays × 3 (AM, PM, midnight). E.g. 48 days = 144 eight-hour slots.
+- **OT capacity:** shift-slot hours minus regular-work hours; for 48 eight-hour regular days, 96 additional eight-hour OT shifts fit, assuming all slots are available.
+- **Total OT shifts needed:** max(0, ceiling((remaining goal − remaining regular earnings) ÷ OT shift pay)).
+- **Additional OT shifts:** max(0, total OT shifts needed − planned OT shifts), provided total needed shifts fit the remaining OT-hour capacity.
 - **Regular workdays required:** exactly the user-entered remaining regular workdays, independent of planned overtime.
-- **Planned OT days:** capped at remaining workdays. If total needed OT days exceed remaining workdays, the goal is marked not possible.
+- **Planned OT shifts:** capped at available OT-hour capacity (not capped to one overtime shift per day). Impossible goals are flagged only when required OT exceeds available OT shift capacity.
 - **Projected gross earnings:** YTD + all remaining regular weekday pay + planned OT earnings.
 
-The device date controls calendar weeks remaining, while the separate workday input determines remaining regular and overtime opportunities. Assumes today's pay is already reflected in YTD earnings. OT hours are *extra* hours on top of regular working days. Working past the end of the year is not considered. Some combinations of required days are not feasible; the app flags common infeasible plans.
+The device date controls calendar weeks remaining, while the separate workday input determines remaining regular and overtime opportunities. Assumes today's pay is already reflected in YTD earnings. OT hours are *extra* hours on top of regular working days. Shift-slot capacity is a theoretical maximum, not a guarantee of employer scheduling, staffing, rest periods, or legal eligibility. Working past the end of the year is not considered. Some combinations of required days are not feasible; the app flags common infeasible plans.
 
 ## Limitations
 
