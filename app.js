@@ -82,8 +82,8 @@ function calculate(){
   const modeText=el("dateMode").value==="custom"?"Custom date":"Automatic date";
   el("dateLabel").textContent=`${modeText}: ${startText}`;
   el("forecastRange").textContent=`Calculations cover ${whole(calendarDays)} calendar days after ${startText} through ${endText} (including weekends).`;
-  el("remainingDaysLabel").textContent=`Calendar days after ${today.toLocaleDateString("en-US",{month:"short",day:"numeric"})}`;
-  el("remainingWeeksLabel").textContent="Weeks remaining in selected date range";
+  el("remainingDaysLabel").textContent=`Calendar days remaining (24/7) from ${startText}`;
+  el("remainingWeeksLabel").textContent=`Calendar weeks left from ${startText}`;
   el("percent").textContent=`${percent.toFixed(1)}% achieved`;
   el("progress").style.width=`${percent}%`;
   el("remaining").textContent=money(remaining);
