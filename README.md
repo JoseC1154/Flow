@@ -15,8 +15,10 @@ Open `index.html` in a browser. Enter year-to-date gross earnings, annual gross 
 - **Remaining amount:** max(0, annual goal − YTD gross earnings).
 - **Days left:** Monday–Friday dates after today through December 31; no holiday exclusions.
 - **Weeks left:** calendar days after today through December 31 divided by 7.
-- **Required OT days:** max(0, ceiling((remaining goal − all future weekday regular pay) ÷ extra OT day pay)).
-- **Regular days needed with planned overtime:** max(0, ceiling((remaining goal − planned OT pay) ÷ regular day pay)).
+- **Total OT days needed:** max(0, ceiling((remaining goal − all remaining weekday regular pay) ÷ extra OT day pay)).
+- **Additional OT days:** max(0, total OT days needed − planned OT days), if the goal is achievable within remaining workdays.
+- **Regular workdays required:** fixed number of remaining Monday–Friday dates, independent of planned overtime.
+- **Planned OT days:** capped at remaining workdays. If total needed OT days exceed remaining workdays, the goal is marked not possible.
 - **Projected gross earnings:** YTD + all remaining regular weekday pay + planned OT earnings.
 
 Assumes today's pay is already reflected in YTD earnings. OT hours are *extra* hours on top of regular working days. Working past the end of the year is not considered. Some combinations of required days are not feasible; the app flags common infeasible plans.
