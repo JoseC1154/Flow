@@ -15,15 +15,15 @@ function remainingSchedule(today){
       date<=end;date.setDate(date.getDate()+1)){
     if(date.getDay()!==0&&date.getDay()!==6)regular++;
   }
-  // Illustrative rotating midnight schedule: 23:00–07:00, then late clear
-  // 07:00–15:00, then 15:00–23:00 off (8 hours off before next report).
-  // Each calendar day supplies two 8-hour shifts in this pattern.
-  // Five midnight reports per week are guaranteed regular shifts;
-  // reports on remaining days are OT. Late clears are all OT.
+  // Tour-neutral upper bound: at most two 8-hour tours per calendar day.
+  // Every regular tour occupies one slot. Five regular tours per week are
+  // approximated by weekday count; actual rotating days off may differ.
+  // Two consecutive tours are permitted, but never a third consecutive tour.
   const daysOff=calendarDays-regular;
-  const lateClears=calendarDays;
-  const maxOT=daysOff+lateClears;
-  return {regular,daysOff,lateClears,slots:calendarDays*3,maxOT};
+  const regularDayOT=regular;
+  const dayOffOT=daysOff*2;
+  const maxOT=regularDayOT+dayOffOT;
+  return {regular,daysOff,regularDayOT,dayOffOT,slots:calendarDays*3,maxOT};
 }
 function selectedAsOfDate(){
   if(el("dateMode").value!=="custom") return dateNow();
@@ -91,8 +91,8 @@ function calculate(){
   el("weekdays").textContent=whole(calendarDays);
   el("shiftSlots").textContent=whole(schedule.slots);
   el("otCapacity").textContent=whole(schedule.maxOT);
-  el("daysOff").textContent=whole(schedule.daysOff);
-  el("lateClears").textContent=whole(schedule.lateClears);
+  el("daysOff").textContent=whole(schedule.dayOffOT);
+  el("lateClears").textContent=whole(schedule.regularDayOT);
   el("dayPay").textContent=money(regularPay);
   el("otPay").textContent=money(overtimePay);
   // Always show required OT as a number; feasibility is explained separately.
@@ -109,10 +109,10 @@ function calculate(){
   let message;
   if(remaining===0)message="You've already reached your annual goal.";
   else if(calendarDays===0)message="No calendar days remain this year.";
-  else if(!achievable)message=`Your goal requires ${whole(neededOT)} OT shifts (${whole(additionalOT)} beyond ${whole(plannedShifts)} planned). The rotating midnight + late-clear example offers up to ${whole(schedule.maxOT)} OT shifts: ${whole(schedule.daysOff)} midnight reports on days off plus ${whole(schedule.lateClears)} late clears. The remaining estimated earnings shortfall is ${money(Math.max(0,gap-schedule.maxOT*overtimePay))}.`;
-  else if(additionalOT===0)message=neededOT===0?"Your projected regular shifts alone meet the goal.":"Your planned OT shifts cover the overtime required for your goal.";
-  else message=`Example capacity: ${whole(schedule.regular)} guaranteed midnight shifts, ${whole(schedule.daysOff)} overtime midnight shifts on days off, and ${whole(schedule.lateClears)} overtime late clears. This allows up to ${whole(schedule.maxOT)} OT shifts when a midnight report is followed by a late clear and then 8 hours off. Your plan has ${whole(plannedShifts)} OT shifts, leaving ${whole(additionalOT)} additional shifts needed.`;
-  if(n.otDays>schedule.maxOT)message+=" Planned OT was capped at the illustrated shift capacity.";
+  else if(!achievable)message=`Your earnings goal requires ${whole(neededOT)} overtime tours (${whole(additionalOT)} beyond the ${whole(plannedShifts)} planned). The estimated upper limit is ${whole(schedule.maxOT)} OT tours: up to one extra tour on each of ${whole(schedule.regular)} regular workdays and up to two on each of ${whole(schedule.daysOff)} days off. This estimate does not assume any particular assigned tour. The projected shortfall at maximum capacity is ${money(Math.max(0,gap-schedule.maxOT*overtimePay))}.`;
+  else if(additionalOT===0)message=neededOT===0?"Your projected regular tours alone meet the goal.":"Your planned overtime covers the additional tours required for your goal.";
+  else message=`With ${whole(schedule.regular)} guaranteed regular tours across ${whole(calendarDays)} remaining calendar days, the upper-bound estimate is ${whole(schedule.maxOT)} possible OT tours. Your ${whole(plannedShifts)} planned OT tours count toward ${whole(neededOT)} needed, leaving ${whole(additionalOT)} more. No specific regular tour is assumed.`;
+  if(n.otDays>schedule.maxOT)message+=" Planned overtime was capped at the estimated maximum.";
   el("guidance").textContent=message;
 }
 el("calculator").addEventListener("submit",event=>{event.preventDefault();calculate()});
