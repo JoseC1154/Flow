@@ -77,7 +77,13 @@ function calculate(){
   const achievable=neededOT<=schedule.maxOT;
   const forecast=n.ytd+schedule.regular*regularPay+plannedShifts*overtimePay;
   const percent=Math.min(100,n.ytd/n.goal*100);
-  el("dateLabel").textContent=`${today.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} to December 31 · 24/7 operation`;
+  const startText=today.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+  const endText=`Dec 31, ${today.getFullYear()}`;
+  const modeText=el("dateMode").value==="custom"?"Custom date":"Automatic date";
+  el("dateLabel").textContent=`${modeText}: ${startText}`;
+  el("forecastRange").textContent=`Calculations cover ${whole(calendarDays)} calendar days after ${startText} through ${endText} (including weekends).`;
+  el("remainingDaysLabel").textContent=`Calendar days after ${today.toLocaleDateString("en-US",{month:"short",day:"numeric"})}`;
+  el("remainingWeeksLabel").textContent="Weeks remaining in selected date range";
   el("percent").textContent=`${percent.toFixed(1)}% achieved`;
   el("progress").style.width=`${percent}%`;
   el("remaining").textContent=money(remaining);
@@ -112,4 +118,5 @@ function calculate(){
 el("calculator").addEventListener("submit",event=>{event.preventDefault();calculate()});
 el("calculator").addEventListener("input",calculate);
 el("dateMode").addEventListener("change",updateDateMode);
+el("customDate").addEventListener("change",calculate);
 updateDateMode();
