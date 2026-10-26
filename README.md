@@ -13,17 +13,17 @@ Open `index.html` in a browser. Enter year-to-date gross earnings, annual gross 
 - **Regular day pay:** hourly rate × hours per regular day.
 - **Overtime shift pay:** hourly rate × 1.5 × overtime shift hours (defaults to 8 hours).
 - **Remaining amount:** max(0, annual goal − YTD gross earnings).
-- **Workdays left:** user-entered fixed number of available regular workdays (defaults to 48). Changing planned overtime does not affect this number.
+- **Days left:** automatically counted calendar days after today through December 31, including weekends. The value is read-only.
 - **Weeks left:** calendar days after today through December 31 divided by 7.
-- **Available shift slots:** remaining workdays × 3 (AM, PM, midnight). E.g. 48 days = 144 eight-hour slots.
+- **Available shift slots:** remaining calendar days × 3 (AM, PM, midnight). E.g. 48 days = 144 eight-hour slots.
 - **OT capacity:** shift-slot hours minus regular-work hours; for 48 eight-hour regular days, 96 additional eight-hour OT shifts fit, assuming all slots are available.
 - **Total OT shifts needed:** max(0, ceiling((remaining goal − remaining regular earnings) ÷ OT shift pay)).
 - **Additional OT shifts:** max(0, total OT shifts needed − planned OT shifts), provided total needed shifts fit the remaining OT-hour capacity.
-- **Regular workdays required:** exactly the user-entered remaining regular workdays, independent of planned overtime.
+- **Regular shifts assumed:** one regular shift per remaining calendar day, unaffected by planned overtime.
 - **Planned OT shifts:** capped at available OT-hour capacity (not capped to one overtime shift per day). Impossible goals are flagged only when required OT exceeds available OT shift capacity.
-- **Projected gross earnings:** YTD + all remaining regular weekday pay + planned OT earnings.
+- **Projected gross earnings:** YTD + all assumed remaining regular-shift pay + planned OT earnings.
 
-The device date controls calendar weeks remaining, while the separate workday input determines remaining regular and overtime opportunities. Assumes today's pay is already reflected in YTD earnings. OT hours are *extra* hours on top of regular working days. Shift-slot capacity is a theoretical maximum, not a guarantee of employer scheduling, staffing, rest periods, or legal eligibility. Working past the end of the year is not considered. Some combinations of required days are not feasible; the app flags common infeasible plans.
+The device date determines days remaining, and all seven days of the week count in the 24/7 operation. The day count is not editable. Assumes today's pay is already reflected in YTD earnings. OT hours are *extra* hours on top of regular working days. Shift-slot capacity is a theoretical maximum, not a guarantee of employer scheduling, staffing, rest periods, or legal eligibility. Working past the end of the year is not considered. Some combinations of required days are not feasible; the app flags common infeasible plans.
 
 ## Limitations
 
