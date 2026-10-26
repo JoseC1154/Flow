@@ -8,6 +8,10 @@ A responsive, browser-based calculator for estimating how many regular workdays 
 
 Open `index.html` in a browser. Choose **Automatic (today)** or **Choose a date** for the as-of calculation date. The custom date uses the selected date's calendar year, with remaining shifts counted starting the next day through December 31. Enter year-to-date gross earnings, annual gross earnings goal, base hourly pay, hours per regular workday, hours per overtime shift, and the number of overtime shifts you plan to work. Results update automatically.
 
+## Estimated year-end earnings
+
+The prominent **Estimated year-end gross earnings** result updates immediately when the user changes YTD pay, hourly rate, planned overtime shifts, or the automatic/custom as-of date. It equals YTD gross earnings + estimated pay from remaining guaranteed regular shifts + pay for planned overtime shifts (limited to the modeled OT capacity). The breakdown shows all three components and the amount above or below the user's annual earnings goal. This is gross pay before taxes.
+
 ## Schedule and calculations
 
 The operation is open seven days per week, with shifts at 23:00–07:00, 07:00–15:00, and 15:00–23:00.
