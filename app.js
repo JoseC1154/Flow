@@ -13,16 +13,17 @@ function weekdaysRemaining(today){
   return count;
 }
 function calculate(){
-  const ids=["ytd","goal","rate","hours","otHours","otDays"];
+  const ids=["ytd","goal","rate","hours","otHours","otDays","workdays"];
   const n=Object.fromEntries(ids.map(id=>[id,Number(el(id).value)]));
   const error=el("error");
-  if(ids.some(id=>el(id).value.trim()===""||!Number.isFinite(n[id]))||n.ytd<0||n.goal<=0||n.rate<=0||n.hours<=0||n.hours>24||n.otHours<=0||n.otHours>24||n.otDays<0||!Number.isInteger(n.otDays)){
+  if(ids.some(id=>el(id).value.trim()===""||!Number.isFinite(n[id]))||n.ytd<0||n.goal<=0||n.rate<=0||n.hours<=0||n.hours>24||n.otHours<=0||n.otHours>24||n.otDays<0||!Number.isInteger(n.otDays)||n.workdays<0||n.workdays>366||!Number.isInteger(n.workdays)){
     error.hidden=false;error.textContent="Please enter valid earnings and hours, with a whole number of overtime days.";return;
   }
   error.hidden=true;
   const today=dateNow();
   const calendarDays=Math.max(0,Math.round((Date.UTC(today.getFullYear(),11,31)-Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()))/86400000));
-  const days=weekdaysRemaining(today);
+  // User-supplied remaining workdays override the device-date weekday count.
+  const days=n.workdays;
   const regularPay=n.rate*n.hours;
   const overtimePay=n.rate*1.5*n.otHours;
   const remaining=Math.max(0,n.goal-n.ytd);
@@ -34,7 +35,7 @@ function calculate(){
   const achievable=neededOT<=days;
   const forecast=n.ytd+days*regularPay+plannedOTPay;
   const percent=Math.min(100,n.ytd/n.goal*100);
-  el("dateLabel").textContent=`${today.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} to December 31`;
+  el("dateLabel").textContent=`${today.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} to December 31 · ${whole(days)} workdays entered`;
   el("percent").textContent=`${percent.toFixed(1)}% achieved`;
   el("progress").style.width=`${percent}%`;
   el("remaining").textContent=money(remaining);
