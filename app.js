@@ -28,8 +28,10 @@ function calculate(){
   const remaining=Math.max(0,n.goal-n.ytd);
   const gap=Math.max(0,remaining-days*regularPay);
   const neededOT=gap<=0?0:Math.ceil((gap-0.0000001)/overtimePay);
-  const regularNeeded=Math.max(0,Math.ceil((remaining-n.otDays*overtimePay-0.0000001)/regularPay));
-  const plannedOTPay=n.otDays*overtimePay;
+  const plannedDays=Math.min(n.otDays,days);
+  const plannedOTPay=plannedDays*overtimePay;
+  const additionalOT=Math.max(0,neededOT-plannedDays);
+  const achievable=neededOT<=days;
   const forecast=n.ytd+days*regularPay+plannedOTPay;
   const percent=Math.min(100,n.ytd/n.goal*100);
   el("dateLabel").textContent=`${today.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} to December 31`;
@@ -40,19 +42,18 @@ function calculate(){
   el("weekdays").textContent=whole(days);
   el("dayPay").textContent=money(regularPay);
   el("otPay").textContent=money(overtimePay);
-  el("minimumOT").textContent=whole(remaining===0?0:neededOT);
-  el("requiredRegular").textContent=whole(remaining===0?0:regularNeeded);
+  el("minimumOT").textContent=achievable?whole(additionalOT):"Not possible";
+  el("requiredRegular").textContent=whole(days);
   el("projected").textContent=money(forecast);
   el("gap").textContent=money(gap);
   el("plannedEarnings").textContent=money(plannedOTPay);
   let message;
   if(remaining===0)message="Congratulations! You've already reached your annual goal.";
   else if(days===0)message="No weekdays remain this year. Consider planning for next year.";
-  else if(neededOT>days)message=`Even with every regular weekday worked, you'd need ${whole(neededOT)} OT days, more than the ${whole(days)} weekdays left. Try longer OT shifts or change your target.`;
-  else if(regularNeeded>days)message=`Your planned OT is not enough. Working all ${whole(days)} remaining weekdays requires at least ${whole(neededOT)} overtime days to reach the goal.`;
-  else if(neededOT===0)message="Regular weekday shifts alone can meet your goal. Overtime is optional.";
-  else message=`Work all ${whole(days)} remaining weekdays and add at least ${whole(neededOT)} overtime days of ${n.otHours} extra hours each. With your planned OT, you'll need ${whole(regularNeeded)} regular days.`;
-  if(n.otDays>days)message+=" Your planned OT days exceed remaining weekdays.";
+  else if(!achievable)message=`Not possible with the current schedule: only ${whole(days)} regular workdays remain, so at most ${whole(days)} OT days can be scheduled. Even adding ${n.otHours} overtime hours on every remaining workday would leave ${money(Math.max(0,gap-days*overtimePay))} short. Increase OT hours per shift or adjust the goal.`;
+  else if(additionalOT===0)message=neededOT===0?"Regular workdays alone can meet your goal; overtime is optional.":`Your ${whole(plannedDays)} planned OT days cover the ${whole(neededOT)} OT days needed. No additional OT days are required.`;
+  else message=`Work all ${whole(days)} remaining regular workdays. Your ${whole(plannedDays)} planned OT days count toward the ${whole(neededOT)} total required; schedule ${whole(additionalOT)} additional OT days.`;
+  if(n.otDays>days)message+=" Planned overtime was capped at the remaining workdays.";
   el("guidance").textContent=message;
 }
 el("calculator").addEventListener("submit",event=>{event.preventDefault();calculate()});
