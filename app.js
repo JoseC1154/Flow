@@ -37,6 +37,7 @@ function selectedAsOfDate(){
 function updateDateMode(){
   const custom=el("dateMode").value==="custom";
   el("customDateField").hidden=!custom;
+  el("customDateField").style.display=custom?"":"none";
   el("customDate").disabled=!custom;
   el("dateModeExplanation").textContent=custom?"Using the selected date.":"Using today's date automatically.";
   if(custom&&!el("customDate").value){
@@ -44,7 +45,7 @@ function updateDateMode(){
     const pad=(n)=>String(n).padStart(2,"0");
     el("customDate").value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
   }
-  updateDateMode();
+  calculate();
 }
 function calculate(){
   const ids=["ytd","goal","rate","hours","otHours","otDays"];
@@ -106,4 +107,4 @@ function calculate(){
 el("calculator").addEventListener("submit",event=>{event.preventDefault();calculate()});
 el("calculator").addEventListener("input",calculate);
 el("dateMode").addEventListener("change",updateDateMode);
-calculate();
+updateDateMode();
