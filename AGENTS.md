@@ -22,7 +22,8 @@
 - Operations run 24/7 with three eight-hour tours: 23:00–07:00, 07:00–15:00, and 15:00–23:00.
 - At most two consecutive eight-hour tours can be worked, not three; actual rotation and rest intervals can reduce available overtime.
 - Only one of the employee's two days off may be worked per week.
-- Overtime pays at 1.5 × hourly rate, using actual planned overtime, with a choice of total through year-end or tours per week.
+- Overtime pays at 1.5 × hourly rate, using planned overtime, with a choice of total through year-end or tours per week.
+- Vacation is optional in forecast: no OT during included vacation weeks; weekly OT and estimated OT capacity must decrease, while calendar time stays unchanged. Assume guaranteed regular pay is paid during vacation unless the model gains paid/unpaid leave inputs. Be explicit that without actual dates the reduction is approximate.
 - The automatic or custom as-of date drives *all* remaining time and shifts; count dates after the as-of date to December 31.
 - Continue showing numerical OT required even when above estimated capacity. Label capacity estimates as theoretical, not guaranteed assigned shifts.
 - Projected year-end gross = YTD earnings + estimated remaining guaranteed regular pay + planned OT pay.
