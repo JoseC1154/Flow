@@ -199,3 +199,133 @@ el("customDate").addEventListener("change",calculate);
 el("vacationMode").addEventListener("change",updateVacationMode);
 updateVacationMode();
 updateDateMode();
+
+
+// Guided setup. Keep the original inputs as the single source of truth.
+function initializeWizard(){
+  const form=el("calculator");
+  const panel=form.closest(".panel");
+  const overlay=document.createElement("div");
+  overlay.className="wizard-overlay";
+  overlay.id="setupOverlay";
+  overlay.setAttribute("role","dialog");
+  overlay.setAttribute("aria-modal","true");
+  overlay.setAttribute("aria-label","Set up your earnings plan");
+  document.body.appendChild(overlay);
+  overlay.appendChild(panel);
+  const fields=Array.from(form.querySelectorAll(".fields > label"));
+  const groups=[
+    ["dateMode","customDate"],
+    ["ytd","goal","rate"],
+    ["vacationMode","vacationWeeks"],
+    ["otMode","otDays"]
+  ];
+  const headings=[
+    ["When should we calculate from?","Choose today or enter a custom date."],
+    ["Tell us about your earnings","Your hourly wage will be remembered on this device."],
+    ["Will you take vacation?","Vacation weeks cannot include overtime."],
+    ["Plan your overtime","Choose weekly tours or a year-end total."]
+  ];
+  const existingHeading=panel.querySelector(".section-title h2");
+  const existingSubtitle=panel.querySelector(".section-title p");
+  const originalSubmit=form.querySelector('button[type="submit"]');
+  originalSubmit.hidden=true;
+  originalSubmit.style.display="none";
+  // Hours are fixed at 8 and need not be asked during setup.
+  const fixedHours=fields.filter(label=>["hours","otHours"].includes(label.querySelector("input,select")?.id));
+  fixedHours.forEach(label=>label.style.display="none");
+  const notes=Array.from(form.querySelectorAll(".note"));
+  notes.forEach(note=>note.style.display="none");
+  const footer=document.createElement("div");
+  footer.className="wizard-actions";
+  footer.innerHTML='<span id="wizardStep" class="wizard-counter"></span><div class="wizard-buttons"><button type="button" id="wizardBack" class="secondary-button">Back</button><button type="button" id="wizardNext">Continue →</button></div>';
+  form.appendChild(footer);
+  let step=0;
+  let completed=false;
+  let transitioning=false;
+  const fieldIds=(label)=>label.querySelector("input,select")?.id;
+  function renderStep(){
+    existingHeading.textContent=headings[step][0];
+    existingSubtitle.textContent=headings[step][1];
+    fields.forEach(label=>{
+      const visible=groups[step].includes(fieldIds(label));
+      label.style.display=visible?"":"none";
+    });
+    el("wizardStep").textContent=`Step ${step+1} of ${groups.length}`;
+    el("wizardBack").hidden=step===0;
+    el("wizardBack").style.display=step===0?"none":"";
+    el("wizardNext").textContent=step===groups.length-1?"Show my forecast →":"Continue →";
+    if(groups[step].includes("dateMode"))updateDateMode();
+    if(groups[step].includes("vacationMode"))updateVacationMode();
+    // Preserve conditional fields hidden by date and vacation logic.
+    fields.forEach(label=>{
+      if(!groups[step].includes(fieldIds(label)))label.style.display="none";
+    });
+  }
+  function stepChange(target){
+    if(transitioning)return;
+    transitioning=true;
+    panel.classList.add("wizard-exit");
+    window.setTimeout(()=>{
+      step=target;renderStep();
+      panel.classList.remove("wizard-exit");
+      panel.classList.add("wizard-enter");
+      panel.querySelector("input:not([disabled]), select:not([disabled])")?.focus();
+      window.setTimeout(()=>{panel.classList.remove("wizard-enter");transitioning=false;},230);
+    },180);
+  }
+  function validateStep(){
+    for(const id of groups[step]){
+      const input=el(id);
+      if(!input||input.disabled||input.closest("label")?.style.display==="none")continue;
+      if(input.type==="number"&&(!input.value.trim()||!input.checkValidity())){input.focus();return false;}
+      if(input.type==="date"&&!input.value){input.focus();return false;}
+    }
+    return true;
+  }
+  el("wizardBack").addEventListener("click",()=>stepChange(Math.max(0,step-1)));
+  el("wizardNext").addEventListener("click",()=>{
+    if(!validateStep())return;
+    if(step<groups.length-1){stepChange(step+1);return;}
+    calculate();
+    if(!el("error").hidden)return;
+    completed=true;
+    overlay.classList.add("wizard-finish");
+    el("dashboard").hidden=false;
+    el("dashboardOtMode").value=el("otMode").value;
+    el("dashboardOtDays").value=el("otDays").value;
+    window.setTimeout(()=>{overlay.hidden=true;overlay.style.display="none";},240);
+    el("dashboard").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+  const syncDashboard=()=>{
+    el("otMode").value=el("dashboardOtMode").value;
+    el("otDays").value=el("dashboardOtDays").value;
+    const weekly=el("otMode").value==="weekly";
+    el("otInputLabel").textContent=weekly?"Planned OT shifts per week":"Planned OT shifts through year-end";
+    calculate();
+  };
+  el("dashboardOtMode").addEventListener("change",syncDashboard);
+  el("dashboardOtDays").addEventListener("input",syncDashboard);
+  el("startOver").addEventListener("click",()=>{
+    completed=false;step=0;
+    el("dashboard").hidden=true;
+    overlay.hidden=false;overlay.style.display="flex";
+    overlay.classList.remove("wizard-finish");
+    renderStep();window.scrollTo({top:0,behavior:"smooth"});
+  });
+  // Only the hourly wage persists; financial totals remain transient.
+  const storageKey="PAYPATH_HOURLY_WAGE_V1";
+  try{
+    const saved=window.localStorage.getItem(storageKey);
+    if(saved!==null&&Number.isFinite(Number(saved))&&Number(saved)>0)el("rate").value=saved;
+  }catch(_error){}
+  el("rate").addEventListener("input",()=>{
+    const value=Number(el("rate").value);
+    if(Number.isFinite(value)&&value>0){
+      try{window.localStorage.setItem(storageKey,String(value));}catch(_error){}
+    }
+  });
+  renderStep();
+  calculate();
+}
+initializeWizard();
