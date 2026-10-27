@@ -16,6 +16,10 @@ Use **Include vacation in OT forecast?** to choose **No — ignore vacation** (d
 
 Choose **Total through year-end** to enter the entire planned overtime tour count, or **Per week** to enter a weekly tour count. Weekly entry converts to a year-end total using `floor(OT tours per week × OT-eligible weeks)`, where OT-eligible weeks exclude vacation only if enabled. Partial weeks are prorated and fractional tours are rounded down. Both modes cap the planned total at the existing estimated available OT capacity. The converted planned total is shown in the earnings breakdown and used in the year-end gross projection and remaining OT requirement.
 
+## Goal feedback, encouragement, and optional sound
+
+The dashboard uses three labeled forecast states: green for **on track**, amber when **additional feasible OT is needed**, and red when **even maximum estimated OT is insufficient**. It rotates between 20 encouraging messages on status changes, without immediately repeating the same message. Audio is muted by default, can be enabled by the user, and plays a short locally generated sound on transitions to green or red while the dashboard is visible. Text, icons, and monetary amounts remain accessible with audio off.
+
 ## Estimated year-end earnings
 
 The prominent **Estimated year-end gross earnings** result updates immediately when the user changes YTD pay, hourly rate, planned overtime shifts, or the automatic/custom as-of date. It equals YTD gross earnings + estimated pay from remaining guaranteed regular shifts + pay for planned overtime shifts (limited to the modeled OT capacity). The breakdown shows all three components and the amount above or below the user's annual earnings goal. This is gross pay before taxes.
