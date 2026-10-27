@@ -44,6 +44,10 @@ A 24/7 operation does not mean every employee works every day. This is an upper-
 See [AGENTS.md](AGENTS.md) before modifying controls or calculations. All dropdowns must use the shared PayPath theme, all editable number inputs use mint +/- stepper buttons instead of dark browser-default spinners, and date-picker icons must be clearly visible. Check keyboard access, contrast, mobile layout, and cache-busting of changed assets.
 
 
+## Welcome screen and wizard numbering
+
+PayPath opens with an animated welcome panel displaying the product name and purpose, followed by a **Get started** button. The four setup panels display numbered badges **01**, **02**, **03**, and **04**, matching the step counter. **Start over** from the dashboard returns to the welcome screen. The introduction and setup respect reduced-motion preferences.
+
 ## Guided setup and saved wage
 
 PayPath now opens with four animated setup steps: calculation date, YTD/goal/hourly wage, optional vacation, and planned overtime. The dashboard appears once setup is complete. **Start over** returns to the first step without creating another page. The dashboard offers independent controls to change planned overtime frequency or tour count after closing setup; results refresh automatically.
