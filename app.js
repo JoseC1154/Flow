@@ -3,6 +3,7 @@
 const el = (id) => document.getElementById(id);
 const money = (value) => new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(value);
 const whole = (value) => new Intl.NumberFormat("en-US").format(value);
+const currencyValue = (input) => Number(input.value.replace(/[^0-9.]/g,""));
 const dateNow = () => new Date();
 function daysUntilYearEnd(today){
   return Math.max(0,Math.round((Date.UTC(today.getFullYear(),11,31)-Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()))/86400000));
@@ -59,7 +60,7 @@ function updateDateMode(){
 }
 function calculate(){
   const ids=["ytd","goal","rate","hours","otHours","otDays"];
-  const n=Object.fromEntries(ids.map(id=>[id,Number(el(id).value)]));
+  const n=Object.fromEntries(ids.map(id=>[id,el(id).dataset.currency==="true"?currencyValue(el(id)):Number(el(id).value)]));
   const error=el("error");
   if(ids.some(id=>el(id).value.trim()===""||!Number.isFinite(n[id]))||
     n.ytd<0||n.goal<=0||n.rate<=0||n.hours!==8||n.otHours!==8||
@@ -186,6 +187,52 @@ function installNumberSteppers(){
   });
 }
 installNumberSteppers();
+// Currency inputs behave like a point-of-sale keypad: rightmost two digits are cents.
+// Works for all earnings amounts, including hourly base pay, without disrupting OT steppers.
+function installCurrencyInputs(){
+  const formatter=new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.querySelectorAll('input[data-currency="true"]').forEach(input=>{
+    let cents=Math.round(currencyValue(input)*100);
+    const redraw=()=>{
+      input.value=formatter.format(cents/100);
+      input.setSelectionRange(input.value.length,input.value.length);
+      input.dispatchEvent(new Event("input",{bubbles:true}));
+    };
+    input.addEventListener("keydown",event=>{
+      if(event.ctrlKey||event.metaKey||event.altKey||event.key==="Tab"||event.key.startsWith("Arrow")||event.key==="Home"||event.key==="End")return;
+      if(/^\\d$/.test(event.key)){
+        event.preventDefault();
+        cents=Math.min(999999999999,Math.round(cents*10+Number(event.key)));
+        redraw();
+      }else if(event.key==="Backspace"||event.key==="Delete"){
+        event.preventDefault();
+        cents=Math.floor(cents/10);
+        redraw();
+      }else if(event.key.length===1||event.key==="Enter"){
+        if(event.key.length===1)event.preventDefault();
+      }
+    });
+    input.addEventListener("paste",event=>{
+      const text=event.clipboardData?.getData("text")||"";
+      const parsed=text.replace(/[$,\\s]/g,"").trim();
+      if(!/^\\d+(?:\\.\\d{0,2})?$/.test(parsed))return;
+      event.preventDefault();
+      cents=Math.min(999999999999,Math.round(Number(parsed)*100));
+      redraw();
+    });
+    input.addEventListener("input",()=>{
+      // Handles mobile keyboards, autofill, and accessibility input methods.
+      const raw=input.value.replace(/\\D/g,"");
+      const displayed=formatter.format(cents/100);
+      if(input.value!==displayed){
+        cents=Math.min(999999999999,Number(raw)||0);
+        input.value=formatter.format(cents/100);
+      }
+    });
+    input.addEventListener("focus",()=>input.select());
+  });
+}
+installCurrencyInputs();
 el("calculator").addEventListener("submit",event=>{event.preventDefault();calculate()});
 el("calculator").addEventListener("input",calculate);
 el("dateMode").addEventListener("change",updateDateMode);
@@ -287,6 +334,7 @@ function initializeWizard(){
     for(const id of groups[step]){
       const input=el(id);
       if(!input||input.disabled||input.closest("label")?.style.display==="none")continue;
+      if(input.dataset.currency==="true"&&(!Number.isFinite(currencyValue(input))||currencyValue(input)<=0&&input.id!=="ytd")){input.focus();return false;}
       if(input.type==="number"&&(!input.value.trim()||!input.checkValidity())){input.focus();return false;}
       if(input.type==="date"&&!input.value){input.focus();return false;}
     }
@@ -345,10 +393,10 @@ function initializeWizard(){
   const storageKey="PAYPATH_HOURLY_WAGE_V1";
   try{
     const saved=window.localStorage.getItem(storageKey);
-    if(saved!==null&&Number.isFinite(Number(saved))&&Number(saved)>0)el("rate").value=saved;
+    if(saved!==null&&Number.isFinite(Number(saved))&&Number(saved)>0)el("rate").value=Number(saved).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
   }catch(_error){}
   el("rate").addEventListener("input",()=>{
-    const value=Number(el("rate").value);
+    const value=currencyValue(el("rate"));
     if(Number.isFinite(value)&&value>0){
       try{window.localStorage.setItem(storageKey,String(value));}catch(_error){}
     }
