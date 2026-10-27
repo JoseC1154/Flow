@@ -14,7 +14,7 @@ Use **Include vacation in OT forecast?** to choose **No — ignore vacation** (d
 
 ## Planned overtime entry
 
-Choose **Total through year-end** to enter the entire planned overtime tour count, or **Per week** to enter a weekly tour count. Weekly entry converts to a year-end total using `floor(OT tours per week × OT-eligible weeks)`, where OT-eligible weeks exclude vacation only if enabled. Partial weeks are prorated and fractional tours are rounded down. Both modes cap the planned total at the existing estimated available OT capacity. The converted planned total is shown in the earnings breakdown and used in the year-end gross projection and remaining OT requirement.
+The default is **Per week**, for entering planned overtime tours each week. Users can switch to **Total through year-end** to enter the entire planned overtime tour count. Weekly entry converts to a year-end total using `floor(OT tours per week × OT-eligible weeks)`, where OT-eligible weeks exclude vacation only if enabled. Partial weeks are prorated and fractional tours are rounded down. Both modes cap the planned total at the existing estimated available OT capacity. The converted planned total is shown in the earnings breakdown and used in the year-end gross projection and remaining OT requirement.
 
 ## Goal feedback, encouragement, and optional sound
 
