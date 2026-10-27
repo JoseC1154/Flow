@@ -43,6 +43,13 @@ A 24/7 operation does not mean every employee works every day. This is an upper-
 
 See [AGENTS.md](AGENTS.md) before modifying controls or calculations. All dropdowns must use the shared PayPath theme, all editable number inputs use mint +/- stepper buttons instead of dark browser-default spinners, and date-picker icons must be clearly visible. Check keyboard access, contrast, mobile layout, and cache-busting of changed assets.
 
+
+## Guided setup and saved wage
+
+PayPath now opens with four animated setup steps: calculation date, YTD/goal/hourly wage, optional vacation, and planned overtime. The dashboard appears once setup is complete. **Start over** returns to the first step without creating another page. The dashboard offers independent controls to change planned overtime frequency or tour count after closing setup; results refresh automatically.
+
+The hourly base rate is saved in the current browser's local storage as `PAYPATH_HOURLY_WAGE_V1` and restored on later visits. Other inputs (including YTD pay and annual goal) are not saved. Browser storage can be cleared by the user; private browsing may not persist the rate.
+
 ## Files
 
 - `index.html` — user interface
