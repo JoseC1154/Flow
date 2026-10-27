@@ -126,3 +126,16 @@
 @keyframes fieldReveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:540px){.wizard-overlay>.panel{padding:23px}.wizard-overlay .fields,.dashboard-ot{grid-template-columns:1fr}.wizard-actions{align-items:stretch;flex-direction:column}.wizard-buttons{justify-content:space-between}.wizard-buttons button{flex:1}.dashboard-toolbar{align-items:flex-start;flex-direction:column}}
 @media(prefers-reduced-motion:reduce){.wizard-overlay,.wizard-overlay .panel,.wizard-overlay .fields>label{animation:none!important;transition:none!important}}
+
+/* PayPath introduction and numbered guided steps */
+.wizard-overlay>.panel[hidden],.wizard-welcome[hidden]{display:none!important}
+.wizard-welcome{width:min(100%,550px);max-height:calc(100vh - 56px);overflow-y:auto;padding:43px 39px;text-align:center;animation:wizardIn .35s ease both}
+.welcome-symbol{width:67px;height:67px;margin:0 auto 20px;display:grid;place-items:center;border-radius:18px;background:#91edc4;color:#102820;font-size:41px;font-weight:800}
+.welcome-kicker{color:#a2f1ce;letter-spacing:2px;font-size:11px;font-weight:800}
+.wizard-welcome h2{font-size:clamp(30px,4vw,43px);line-height:1.12;letter-spacing:-1.5px;margin:14px 0 18px}
+.wizard-welcome h2 span{color:#99ebc7}
+.wizard-welcome>p:not(.welcome-kicker){color:#b8cadb;font-size:15px;line-height:1.7}
+.wizard-welcome .welcome-detail{color:#8fa5bd!important;font-size:13px!important}
+.wizard-welcome button{margin-top:26px}
+@media(max-width:540px){.wizard-welcome{padding:35px 22px}}
+@media(prefers-reduced-motion:reduce){.wizard-welcome{animation:none!important}}
