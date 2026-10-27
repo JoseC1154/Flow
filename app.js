@@ -331,6 +331,55 @@ updateVacationMode();
 updateDateMode();
 
 
+
+const INPUT_TIPS={
+ dateMode:"Choose today or a custom forecast date.",
+ customDate:"Year-end calculations start the day after this date.",
+ ytd:"Gross earnings so far. Digits automatically shift the cents.",
+ goal:"Your desired annual gross earnings.",
+ rate:"Base hourly wage. Saved on this device.",
+ hours:"Regular tours are eight hours.",
+ otHours:"Overtime tours are eight hours, paid at 1.5×.",
+ otMode:"Select weekly overtime or a year-end total.",
+ otDays:"Number of planned eight-hour OT tours.",
+ vacationMode:"Include vacation to remove OT during those weeks.",
+ vacationWeeks:"How many full vacation weeks remain?",
+ dashboardOtMode:"Change the overtime planning period.",
+ dashboardOtDays:"Adjust overtime without restarting the setup."
+};
+function installInputTips(){
+ for(const [id,tip] of Object.entries(INPUT_TIPS)){
+  const field=el(id);if(!field)continue;
+  const label=field.closest("label");if(!label)continue;
+  const helper=document.createElement("small");
+  helper.className="input-tip";
+  helper.id=id+"Tip";
+  helper.textContent=tip;
+  label.appendChild(helper);
+  field.setAttribute("aria-describedby",helper.id);
+  if(field.dataset.currency==="true")field.placeholder="Enter amount";
+ }
+}
+installInputTips();
+const PREF_KEY="PAYPATH_INPUT_PREFERENCES_V1";
+const preferenceIds=["dateMode","customDate","ytd","goal","rate","otMode","otDays","vacationMode","vacationWeeks"];
+function savePreferences(){
+ try{
+  window.localStorage.setItem(PREF_KEY,JSON.stringify(Object.fromEntries(preferenceIds.map(id=>[id,el(id).value]))));
+ }catch(_error){}
+}
+function loadPreferences(){
+ try{
+  const raw=window.localStorage.getItem(PREF_KEY);
+  if(!raw)return;
+  const data=JSON.parse(raw);
+  for(const id of preferenceIds)if(typeof data[id]==="string")el(id).value=data[id];
+ }catch(_error){}
+}
+loadPreferences();
+el("calculator").addEventListener("input",savePreferences);
+el("calculator").addEventListener("change",savePreferences);
+
 // Guided setup. Keep the original inputs as the single source of truth.
 function initializeWizard(){
   const form=el("calculator");
@@ -472,11 +521,11 @@ function initializeWizard(){
     overlay.classList.remove("wizard-finish");
     renderStep();showWelcome();window.scrollTo({top:0,behavior:"smooth"});
   });
-  // Only the hourly wage persists; financial totals remain transient.
+  // Restore existing saved wage only if not in the saved preferences.
   const storageKey="PAYPATH_HOURLY_WAGE_V1";
   try{
     const saved=window.localStorage.getItem(storageKey);
-    if(saved!==null&&Number.isFinite(Number(saved))&&Number(saved)>0)el("rate").value=Number(saved).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+    if(!el("rate").value&&saved!==null&&Number.isFinite(Number(saved))&&Number(saved)>0)el("rate").value=Number(saved).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
   }catch(_error){}
   el("rate").addEventListener("input",()=>{
     const value=currencyValue(el("rate"));
