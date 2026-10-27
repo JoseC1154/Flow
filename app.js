@@ -147,7 +147,85 @@ function calculate(){
   if(weeklyMode)message+=` Weekly plan: ${whole(n.otDays)} tours/week × ${effectiveOTWeeks.toFixed(2)} OT-eligible weeks = ${whole(requestedOT)} whole tours before applying the capacity limit.`;
   if(vacationEnabled)message+=` No overtime is counted during ${whole(vacationWeeks)} vacation weeks; regular pay assumes paid vacation.`;
   el("guidance").textContent=message;
+  updateGoalStatus({forecast,goal:n.goal,remaining,neededOT,additionalOT,availableOT,overtimePay,gap});
 }
+const ENCOURAGEMENT_MESSAGES=[
+"Every well-planned shift is progress.",
+"Your target becomes clearer with every update.",
+"Small steps make a measurable difference.",
+"A steady plan can create strong results.",
+"Keep your goal in view and your schedule realistic.",
+"Progress matters more than perfection.",
+"You are building a clearer picture of your future.",
+"The next shift is another opportunity.",
+"A practical plan is a powerful starting point.",
+"Consistency helps turn goals into results.",
+"Your effort deserves a thoughtful plan.",
+"Focus on what is within reach today.",
+"Each calculation helps you make an informed choice.",
+"Stay focused on your priorities and your rest.",
+"A flexible plan can adapt as life changes.",
+"You can adjust the route without losing the goal.",
+"Good planning includes time to recharge.",
+"Celebrate progress, even before the finish line.",
+"A realistic target is worth working toward.",
+"Make your available time count.",
+];
+let previousStatus=null;
+let soundEnabled=false;
+let audioContext=null;
+let encouragementIndex=-1;
+function chooseEncouragement(){
+  let i=Math.floor(Math.random()*ENCOURAGEMENT_MESSAGES.length);
+  if(i===encouragementIndex)i=(i+1)%ENCOURAGEMENT_MESSAGES.length;
+  encouragementIndex=i;
+  return ENCOURAGEMENT_MESSAGES[i];
+}
+function playStatusSound(status){
+  if(!soundEnabled||!(status==="success"||status==="unreachable"))return;
+  const Audio=window.AudioContext||window.webkitAudioContext;
+  if(!Audio)return;
+  try{
+    audioContext=audioContext||new Audio();
+    if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});
+    const notes=status==="success"?[523.25,659.25,783.99]:[349.23,293.66];
+    notes.forEach((frequency,i)=>{
+      const oscillator=audioContext.createOscillator();
+      const gain=audioContext.createGain();
+      const t=audioContext.currentTime+.025+i*.13;
+      oscillator.type="sine";oscillator.frequency.value=frequency;
+      gain.gain.setValueAtTime(.0001,t);
+      gain.gain.exponentialRampToValueAtTime(.025,t+.02);
+      gain.gain.exponentialRampToValueAtTime(.0001,t+.2);
+      oscillator.connect(gain);gain.connect(audioContext.destination);
+      oscillator.start(t);oscillator.stop(t+.21);
+    });
+  }catch(_error){}
+}
+function updateGoalStatus({forecast,goal,remaining,neededOT,additionalOT,availableOT,overtimePay,gap}){
+  const status=forecast>=goal?"success":neededOT>availableOT?"unreachable":"needs-ot";
+  const box=el("goalStatus");
+  box.className="goal-status status-"+status;
+  const titles={success:"On track to meet your goal","needs-ot":"More overtime needed",unreachable:"Goal beyond estimated OT capacity"};
+  const symbols={success:"✓","needs-ot":"↗",unreachable:"!"};
+  el("goalStatusIcon").textContent=symbols[status];
+  el("goalStatusTitle").textContent=titles[status];
+  let detail;
+  if(status==="success")detail=remaining===0?"Your year-to-date earnings already meet the goal.":"Your planned year-end earnings exceed the goal by "+money(forecast-goal)+".";
+  else if(status==="needs-ot")detail="Your current plan is short by "+money(goal-forecast)+". Approximately "+whole(additionalOT)+" additional OT tours would reach your goal within estimated capacity.";
+  else detail="Even with all "+whole(availableOT)+" estimated available OT tours, the goal would remain short by "+money(Math.max(0,gap-availableOT*overtimePay))+"."; 
+  el("goalStatusDetail").textContent=detail;
+  if(status!==previousStatus){
+    el("encouragement").textContent=chooseEncouragement();
+    if(previousStatus!==null&&!el("dashboard").hidden)playStatusSound(status);
+    previousStatus=status;
+  }
+}
+el("soundToggle").addEventListener("click",()=>{
+  soundEnabled=!soundEnabled;
+  el("soundToggle").textContent=soundEnabled?"Sound on":"Sound off";
+  el("soundToggle").setAttribute("aria-pressed",String(soundEnabled));
+});
 // Accessible, theme-matched +/- controls for editable numeric inputs.
 function updateVacationMode(){
   const included=el("vacationMode").value==="include";
