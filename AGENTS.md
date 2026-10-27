@@ -28,6 +28,14 @@
 - Continue showing numerical OT required even when above estimated capacity. Label capacity estimates as theoretical, not guaranteed assigned shifts.
 - Projected year-end gross = YTD earnings + estimated remaining guaranteed regular pay + planned OT pay.
 
+
+## Guided setup invariants
+- The initial input flow uses one existing panel as an animated, four-step dialog; never duplicate the calculator or page.
+- The final dashboard must always allow editing planned overtime independently from the setup dialog and expose a working **Start over** action.
+- Store **only** the user's hourly base wage in local storage, under `PAYPATH_HOURLY_WAGE_V1`; do not persist YTD, goals, or other financial inputs without explicit direction.
+- Support `prefers-reduced-motion`, keyboard focus, and small-screen dialog scrolling.
+- Maintain the shared dropdown/stepper aesthetics for any future setup controls and dashboard inputs.
+
 ## Validation checklist
 - Verify the first-line signature before and after editing each file.
 - Test both date modes, both overtime entry modes, zero days left, zero OT, very high OT, and values exceeding estimated capacity.
