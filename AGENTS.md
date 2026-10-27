@@ -46,6 +46,11 @@
 - Support `prefers-reduced-motion`, keyboard focus, and small-screen dialog scrolling.
 - Maintain the shared dropdown/stepper aesthetics for any future setup controls and dashboard inputs.
 
+## Goal feedback
+- Keep success (green), additional feasible OT (amber), and goal beyond capacity (red) distinct by text and icon, not just color.
+- Preserve 20 encouraging messages, rotated only when the forecast status changes.
+- Sound remains off by default and opt-in, with gentle locally synthesized cues on transitions to success or unreachable. Never depend on sound for vital information.
+
 ## Validation checklist
 - Verify the first-line signature before and after editing each file.
 - Test both date modes, both overtime entry modes, zero days left, zero OT, very high OT, and values exceeding estimated capacity.
