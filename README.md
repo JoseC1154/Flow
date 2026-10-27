@@ -56,7 +56,7 @@ PayPath opens with an animated welcome panel displaying the product name and pur
 
 All setup and dashboard controls have short input tips. Monetary inputs open empty on a new device, then format entered digits as cents. Inputs (YTD earnings, goal, wage, date preferences, planned OT, and vacation preferences) are saved locally in the browser and restored on subsequent visits; clearing browser storage removes them. No data is sent to a server. The saved hourly wage also remains supported by its prior local-storage key.
 
-Sound is enabled by default. Short, distinct, bright synthesized tones play for success or an unreachable goal; an original descending arcade-style warning also plays when requested overtime exceeds the estimated permitted capacity, such as a weekly OT plan too large for the remaining period. The app shows an explicit red warning and caps the projection rather than silently accepting impossible OT. Phone audio behavior is subject to user-gesture autoplay rules and the device's volume/silent settings; sounds cannot be guaranteed.
+Sound is enabled by default and has no on/off toggle. Short, distinct, bright synthesized tones play for success or an unreachable goal; an original descending arcade-style warning also plays when requested overtime exceeds the estimated permitted capacity, such as a weekly OT plan too large for the remaining period. The app shows an explicit red warning and caps the projection rather than silently accepting impossible OT. Phone audio behavior is subject to user-gesture autoplay rules and the device's volume/silent settings; sounds cannot be guaranteed.
 
 ## Automatic currency entry
 
