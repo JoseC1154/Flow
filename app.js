@@ -66,8 +66,13 @@ function calculate(){
   if(ids.some(id=>el(id).value.trim()===""||!Number.isFinite(n[id]))||
     n.ytd<0||n.goal<=0||n.rate<=0||n.hours!==8||n.otHours!==8||
     n.otDays<0||!Number.isInteger(n.otDays)){
-    error.hidden=false;
-    error.textContent="Enter valid earnings, 8-hour shifts, and a whole number of planned overtime shifts.";
+    // Do not show errors from future wizard steps during initial setup.
+    if(el("setupOverlay")?.hidden){
+      error.hidden=false;
+      error.textContent="Review your earnings and planned overtime values.";
+    }else{
+      error.hidden=true;
+    }
     return;
   }
   error.hidden=true;
@@ -427,6 +432,7 @@ function initializeWizard(){
   let transitioning=false;
   const fieldIds=(label)=>label.querySelector("input,select")?.id;
   function renderStep(){
+    el("error").hidden=true;
     const numberBadge=panel.querySelector(".section-title .number");
     if(numberBadge)numberBadge.textContent=String(step+1).padStart(2,"0");
     existingHeading.textContent=headings[step][0];
@@ -459,12 +465,26 @@ function initializeWizard(){
     },180);
   }
   function validateStep(){
+    const error=el("error");
+    error.hidden=true;
     for(const id of groups[step]){
       const input=el(id);
       if(!input||input.disabled||input.closest("label")?.style.display==="none")continue;
-      if(input.dataset.currency==="true"&&(!input.value.trim()||!Number.isFinite(currencyValue(input))||currencyValue(input)<=0&&input.id!=="ytd")){input.focus();return false;}
-      if(input.type==="number"&&(!input.value.trim()||!input.checkValidity())){input.focus();return false;}
-      if(input.type==="date"&&!input.value){input.focus();return false;}
+      let problem="";
+      if(input.dataset.currency==="true"){
+        if(!input.value.trim())problem="Please enter "+(id==="ytd"?"your year-to-date earnings":id==="goal"?"your annual earnings goal":"your hourly wage")+".";
+        else if(!Number.isFinite(currencyValue(input))||(id!=="ytd"&&currencyValue(input)<=0))problem="Enter a valid "+(id==="goal"?"annual earnings goal":id==="rate"?"hourly wage":"year-to-date amount")+".";
+      }else if(input.type==="number"&&(!input.value.trim()||!input.checkValidity())){
+        problem=id==="vacationWeeks"?"Enter a valid number of remaining vacation weeks.":"Enter a valid number of planned overtime tours.";
+      }else if(input.type==="date"&&!input.value){
+        problem="Choose a valid calculation date.";
+      }
+      if(problem){
+        error.textContent=problem;
+        error.hidden=false;
+        input.focus();
+        return false;
+      }
     }
     return true;
   }
