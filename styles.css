@@ -139,3 +139,19 @@
 .wizard-welcome button{margin-top:26px}
 @media(max-width:540px){.wizard-welcome{padding:35px 22px}}
 @media(prefers-reduced-motion:reduce){.wizard-welcome{animation:none!important}}
+
+/* Goal statuses: never communicate through color alone. */
+.goal-status{border:1px solid #485775;border-radius:17px;padding:19px 21px;margin-bottom:22px;background:#1b2b40}
+.goal-status-top{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.goal-status-top>span{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;font-weight:850;font-size:17px}
+.goal-status-top>strong{font-size:16px;flex:1;min-width:160px}
+.goal-status p{margin:9px 0 0;font-size:13px;line-height:1.65}
+.goal-status .encouragement{font-style:italic;opacity:.9}
+.status-success{background:#153d36;border-color:#469b79;color:#d5ffeb}
+.status-success .goal-status-top>span{background:#90eac1;color:#102c22}
+.status-needs-ot{background:#403218;border-color:#bb9141;color:#fff0c6}
+.status-needs-ot .goal-status-top>span{background:#f6c971;color:#403118}
+.status-unreachable{background:#43252d;border-color:#bc6775;color:#ffe2e5}
+.status-unreachable .goal-status-top>span{background:#ffc2ca;color:#54212a}
+.sound-toggle{width:auto!important;background:transparent;color:inherit;border:1px solid currentColor;border-radius:9px;padding:8px 12px;font-size:12px;white-space:nowrap}
+.sound-toggle:hover{background:#ffffff19}
