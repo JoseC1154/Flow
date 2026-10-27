@@ -95,3 +95,34 @@
 @media(max-width:540px) {
   .input .stepper-button { width:36px;height:40px; }
 }
+
+/* Guided setup and forecast dashboard */
+.wizard-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:28px 16px;background:rgba(5,11,22,.83);backdrop-filter:blur(10px)}
+.wizard-overlay[hidden],#dashboard[hidden]{display:none!important}
+.wizard-overlay>.panel{width:min(100%,660px);max-height:calc(100vh - 56px);overflow-y:auto;box-shadow:0 30px 100px #0009;animation:wizardIn .3s ease both}
+.wizard-overlay .fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+.wizard-overlay .fields>label{animation:fieldReveal .28s ease both}
+.wizard-overlay .section-title h2{font-size:25px}
+.wizard-overlay .section-title p{font-size:13px}
+.wizard-actions{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:26px;border-top:1px solid #30435b;padding-top:22px}
+.wizard-counter{color:#91eac4;font-size:12px;font-weight:800;letter-spacing:1px}
+.wizard-buttons{display:flex;gap:10px}
+.wizard-buttons button{width:auto;min-width:113px;white-space:nowrap}
+.secondary-button{background:#182b40;color:#b4f2d5;border:1px solid #43645a}
+.secondary-button:hover{background:#264239}
+.wizard-overlay .wizard-exit{animation:wizardOut .18s ease both}
+.wizard-overlay .wizard-enter{animation:wizardIn .23s ease both}
+.wizard-overlay.wizard-finish{animation:fadeAway .24s ease both}
+.layout:has(#dashboard){display:block}
+#dashboard{width:100%;max-width:1030px;margin:0 auto}
+.dashboard-toolbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:22px}
+.dashboard-toolbar strong{font-size:20px}
+.dashboard-toolbar p{margin:3px 0}
+.dashboard-toolbar button{width:auto;padding:12px 17px}
+.dashboard-ot{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;background:#142137;border:1px solid #2c3d56;border-radius:18px;padding:20px;margin-bottom:26px}
+@keyframes wizardIn{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes wizardOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-14px)}}
+@keyframes fadeAway{to{opacity:0;transform:scale(.98)}}
+@keyframes fieldReveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:540px){.wizard-overlay>.panel{padding:23px}.wizard-overlay .fields,.dashboard-ot{grid-template-columns:1fr}.wizard-actions{align-items:stretch;flex-direction:column}.wizard-buttons{justify-content:space-between}.wizard-buttons button{flex:1}.dashboard-toolbar{align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.wizard-overlay,.wizard-overlay .panel,.wizard-overlay .fields>label{animation:none!important;transition:none!important}}
