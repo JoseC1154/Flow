@@ -34,6 +34,11 @@
 - The step badge number must update with the wizard step (01–04); do not leave static “01” in all screens.
 - Start over should return to the welcome screen. Respect reduced-motion preferences and accessible focus.
 
+## Currency controls
+- Apply two-decimal, digit-shifting formatting consistently to all monetary **inputs** (YTD, goal, wage), including pasted values and mobile keyboard entry.
+- Parse formatted inputs as real dollar values in calculations, validation, and hourly-wage persistence. Keep number steppers for count inputs only.
+- Preserve the existing first-line file signatures, and do not persist YTD or goal.
+
 ## Guided setup invariants
 - The initial input flow uses one existing panel as an animated, four-step dialog; never duplicate the calculator or page.
 - The final dashboard must always allow editing planned overtime independently from the setup dialog and expose a working **Start over** action.
