@@ -48,6 +48,10 @@ See [AGENTS.md](AGENTS.md) before modifying controls or calculations. All dropdo
 
 PayPath opens with an animated welcome panel displaying the product name and purpose, followed by a **Get started** button. The four setup panels display numbered badges **01**, **02**, **03**, and **04**, matching the step counter. **Start over** from the dashboard returns to the welcome screen. The introduction and setup respect reduced-motion preferences.
 
+## Automatic currency entry
+
+Year-to-date earnings, annual goal, and hourly wage use digit-shifting currency entry. Each typed digit is interpreted as cents and pushes existing digits left: typing 4, 0, 0, 0 results in `40.00`. Backspace removes the rightmost digit, and pasting normal dollar amounts (including commas and decimal points) is supported. All calculations use numeric dollars, not formatted strings. The hourly wage continues to be the only persisted value.
+
 ## Guided setup and saved wage
 
 PayPath now opens with four animated setup steps: calculation date, YTD/goal/hourly wage, optional vacation, and planned overtime. The dashboard appears once setup is complete. **Start over** returns to the first step without creating another page. The dashboard offers independent controls to change planned overtime frequency or tour count after closing setup; results refresh automatically.
