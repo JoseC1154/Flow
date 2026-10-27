@@ -225,6 +225,7 @@ function updateGoalStatus({forecast,goal,remaining,neededOT,additionalOT,availab
     previousStatus=status;
   }
 }
+el("soundToggle").setAttribute("aria-pressed","true");
 el("soundToggle").addEventListener("click",()=>{
   soundEnabled=!soundEnabled;
   el("soundToggle").textContent=soundEnabled?"Sound on":"Sound off";
@@ -312,7 +313,7 @@ function installCurrencyInputs(){
         input.value=formatter.format(cents/100);
       }
     });
-    input.addEventListener("focus",()=>input.select());
+    input.addEventListener("focus",()=>{cents=input.value.trim()?Math.round(currencyValue(input)*100):0;input.select();});
   });
 }
 installCurrencyInputs();
