@@ -60,6 +60,7 @@ function updateDateMode(){
 }
 function calculate(){
   const ids=["ytd","goal","rate","hours","otHours","otDays"];
+  if(["ytd","goal","rate"].some(id=>!el(id).value.trim())){el("error").hidden=true;return;}
   const n=Object.fromEntries(ids.map(id=>[id,el(id).dataset.currency==="true"?currencyValue(el(id)):Number(el(id).value)]));
   const error=el("error");
   if(ids.some(id=>el(id).value.trim()===""||!Number.isFinite(n[id]))||
@@ -100,6 +101,7 @@ function calculate(){
   // Round down to whole tours; never count a partial tour as worked.
   const weeklyMode=el("otMode").value==="weekly";
   const requestedOT=weeklyMode?Math.floor((n.otDays*effectiveOTWeeks)+1e-9):n.otDays;
+  const planOverCapacity=requestedOT>availableOT;
   const plannedShifts=Math.min(requestedOT,availableOT);
   const additionalOT=Math.max(0,neededOT-plannedShifts);
   const achievable=neededOT<=availableOT;
@@ -147,7 +149,7 @@ function calculate(){
   if(weeklyMode)message+=` Weekly plan: ${whole(n.otDays)} tours/week × ${effectiveOTWeeks.toFixed(2)} OT-eligible weeks = ${whole(requestedOT)} whole tours before applying the capacity limit.`;
   if(vacationEnabled)message+=` No overtime is counted during ${whole(vacationWeeks)} vacation weeks; regular pay assumes paid vacation.`;
   el("guidance").textContent=message;
-  updateGoalStatus({forecast,goal:n.goal,remaining,neededOT,additionalOT,availableOT,overtimePay,gap});
+  updateGoalStatus({forecast,goal:n.goal,remaining,neededOT,additionalOT,availableOT,overtimePay,gap,planOverCapacity,requestedOT});
 }
 const ENCOURAGEMENT_MESSAGES=[
 "Every well-planned shift is progress.",
@@ -172,7 +174,7 @@ const ENCOURAGEMENT_MESSAGES=[
 "Make your available time count.",
 ];
 let previousStatus=null;
-let soundEnabled=false;
+let soundEnabled=true;
 let audioContext=null;
 let encouragementIndex=-1;
 function chooseEncouragement(){
@@ -182,42 +184,44 @@ function chooseEncouragement(){
   return ENCOURAGEMENT_MESSAGES[i];
 }
 function playStatusSound(status){
-  if(!soundEnabled||!(status==="success"||status==="unreachable"))return;
+  if(!soundEnabled||!(status==="success"||status==="unreachable"||status==="invalid-plan"))return;
   const Audio=window.AudioContext||window.webkitAudioContext;
   if(!Audio)return;
   try{
     audioContext=audioContext||new Audio();
     if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});
-    const notes=status==="success"?[523.25,659.25,783.99]:[349.23,293.66];
+    const notes=status==="success"?[880,1108.73,1318.51]:[1318.5,1046.5,880,698.46,523.25];
     notes.forEach((frequency,i)=>{
       const oscillator=audioContext.createOscillator();
       const gain=audioContext.createGain();
-      const t=audioContext.currentTime+.025+i*.13;
-      oscillator.type="sine";oscillator.frequency.value=frequency;
+      const t=audioContext.currentTime+.025+i*.10;
+      oscillator.type=status==="success"?"sine":"triangle";oscillator.frequency.setValueAtTime(frequency,t);
+      if(status!=="success")oscillator.frequency.exponentialRampToValueAtTime(Math.max(350,frequency*.72),t+.18);
       gain.gain.setValueAtTime(.0001,t);
-      gain.gain.exponentialRampToValueAtTime(.025,t+.02);
+      gain.gain.exponentialRampToValueAtTime(.055,t+.02);
       gain.gain.exponentialRampToValueAtTime(.0001,t+.2);
       oscillator.connect(gain);gain.connect(audioContext.destination);
       oscillator.start(t);oscillator.stop(t+.21);
     });
   }catch(_error){}
 }
-function updateGoalStatus({forecast,goal,remaining,neededOT,additionalOT,availableOT,overtimePay,gap}){
-  const status=forecast>=goal?"success":neededOT>availableOT?"unreachable":"needs-ot";
+function updateGoalStatus({forecast,goal,remaining,neededOT,additionalOT,availableOT,overtimePay,gap,planOverCapacity,requestedOT}){
+  const status=planOverCapacity?"invalid-plan":forecast>=goal?"success":neededOT>availableOT?"unreachable":"needs-ot";
   const box=el("goalStatus");
   box.className="goal-status status-"+status;
-  const titles={success:"On track to meet your goal","needs-ot":"More overtime needed",unreachable:"Goal beyond estimated OT capacity"};
-  const symbols={success:"✓","needs-ot":"↗",unreachable:"!"};
+  const titles={success:"On track to meet your goal","needs-ot":"More overtime needed",unreachable:"Goal beyond estimated OT capacity","invalid-plan":"Planned overtime exceeds availability"};
+  const symbols={success:"✓","needs-ot":"↗",unreachable:"!","invalid-plan":"!"};
   el("goalStatusIcon").textContent=symbols[status];
   el("goalStatusTitle").textContent=titles[status];
   let detail;
   if(status==="success")detail=remaining===0?"Your year-to-date earnings already meet the goal.":"Your planned year-end earnings exceed the goal by "+money(forecast-goal)+".";
   else if(status==="needs-ot")detail="Your current plan is short by "+money(goal-forecast)+". Approximately "+whole(additionalOT)+" additional OT tours would reach your goal within estimated capacity.";
+  else if(status==="invalid-plan")detail="You requested "+whole(requestedOT)+" OT tours but only "+whole(availableOT)+" are estimated available. The forecast is capped. Reduce OT or adjust vacation.";
   else detail="Even with all "+whole(availableOT)+" estimated available OT tours, the goal would remain short by "+money(Math.max(0,gap-availableOT*overtimePay))+"."; 
   el("goalStatusDetail").textContent=detail;
   if(status!==previousStatus){
     el("encouragement").textContent=chooseEncouragement();
-    if(previousStatus!==null&&!el("dashboard").hidden)playStatusSound(status);
+    if(!el("dashboard").hidden)playStatusSound(status);
     previousStatus=status;
   }
 }
@@ -270,7 +274,7 @@ installNumberSteppers();
 function installCurrencyInputs(){
   const formatter=new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
   document.querySelectorAll('input[data-currency="true"]').forEach(input=>{
-    let cents=Math.round(currencyValue(input)*100);
+    let cents=input.value.trim()?Math.round(currencyValue(input)*100):0;
     const redraw=()=>{
       input.value=formatter.format(cents/100);
       input.setSelectionRange(input.value.length,input.value.length);
@@ -413,7 +417,7 @@ function initializeWizard(){
     for(const id of groups[step]){
       const input=el(id);
       if(!input||input.disabled||input.closest("label")?.style.display==="none")continue;
-      if(input.dataset.currency==="true"&&(!Number.isFinite(currencyValue(input))||currencyValue(input)<=0&&input.id!=="ytd")){input.focus();return false;}
+      if(input.dataset.currency==="true"&&(!input.value.trim()||!Number.isFinite(currencyValue(input))||currencyValue(input)<=0&&input.id!=="ytd")){input.focus();return false;}
       if(input.type==="number"&&(!input.value.trim()||!input.checkValidity())){input.focus();return false;}
       if(input.type==="date"&&!input.value){input.focus();return false;}
     }
