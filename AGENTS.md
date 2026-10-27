@@ -49,7 +49,7 @@
 ## Goal feedback
 - Keep success (green), additional feasible OT (amber), and goal beyond capacity (red) distinct by text and icon, not just color.
 - Preserve 20 encouraging messages, rotated only when the forecast status changes.
-- Sound is enabled by default with bright but moderate-volume locally synthesized cues for success and unreachable/invalid OT plans, never a copy of a copyrighted game sound. Phone autoplay policies and silent mode can suppress playback. Never depend on sound for vital information.
+- Sound is enabled by default with no visible on/off control, using bright but moderate-volume locally synthesized cues for success and unreachable/invalid OT plans, never a copy of a copyrighted game sound. Phone autoplay policies and silent mode can suppress playback. Never depend on sound for vital information.
 
 ## Validation checklist
 - Verify the first-line signature before and after editing each file.
