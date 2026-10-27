@@ -51,6 +51,11 @@
 - Preserve 20 encouraging messages, rotated only when the forecast status changes.
 - Sound is enabled by default with no visible on/off control, using bright but moderate-volume locally synthesized cues for success and unreachable/invalid OT plans, never a copy of a copyrighted game sound. Phone autoplay policies and silent mode can suppress playback. Never depend on sound for vital information.
 
+## Wizard validation
+- Show form errors only on the relevant active wizard step, not for hidden or future inputs.
+- Clear prior step errors on navigation. Specifically, never display overtime or eight-hour shift warnings on the earnings question.
+- Check all four steps with blank values and invalid values before shipping.
+
 ## Validation checklist
 - Verify the first-line signature before and after editing each file.
 - Test both date modes, both overtime entry modes, zero days left, zero OT, very high OT, and values exceeding estimated capacity.
