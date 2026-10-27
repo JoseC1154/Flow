@@ -225,12 +225,7 @@ function updateGoalStatus({forecast,goal,remaining,neededOT,additionalOT,availab
     previousStatus=status;
   }
 }
-el("soundToggle").setAttribute("aria-pressed","true");
-el("soundToggle").addEventListener("click",()=>{
-  soundEnabled=!soundEnabled;
-  el("soundToggle").textContent=soundEnabled?"Sound on":"Sound off";
-  el("soundToggle").setAttribute("aria-pressed",String(soundEnabled));
-});
+
 // Accessible, theme-matched +/- controls for editable numeric inputs.
 function updateVacationMode(){
   const included=el("vacationMode").value==="include";
