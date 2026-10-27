@@ -155,3 +155,8 @@
 .status-unreachable .goal-status-top>span{background:#ffc2ca;color:#54212a}
 .sound-toggle{width:auto!important;background:transparent;color:inherit;border:1px solid currentColor;border-radius:9px;padding:8px 12px;font-size:12px;white-space:nowrap}
 .sound-toggle:hover{background:#ffffff19}
+
+/* Brief, readable hints for every setup and dashboard field. */
+.input-tip{display:block;margin-top:7px;color:#a5b9d0;font-weight:400;font-size:11px;line-height:1.5}
+.status-invalid-plan{background:#48232b;border-color:#e58c9b;color:#ffe4e8}
+.status-invalid-plan .goal-status-top>span{background:#ffd0d6;color:#57252d}
