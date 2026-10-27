@@ -200,31 +200,32 @@ function installCurrencyInputs(){
     };
     input.addEventListener("keydown",event=>{
       if(event.ctrlKey||event.metaKey||event.altKey||event.key==="Tab"||event.key.startsWith("Arrow")||event.key==="Home"||event.key==="End")return;
-      if(/^\\d$/.test(event.key)){
+      if(/^\d$/.test(event.key)){
         event.preventDefault();
-        cents=Math.min(999999999999,Math.round(cents*10+Number(event.key)));
+        if(input.selectionStart===0&&input.selectionEnd===input.value.length)cents=0;
+        cents=Math.min(999999999999,cents*10+Number(event.key));
         redraw();
       }else if(event.key==="Backspace"||event.key==="Delete"){
         event.preventDefault();
-        cents=Math.floor(cents/10);
+        if(input.selectionStart===0&&input.selectionEnd===input.value.length)cents=0;
+        else cents=Math.floor(cents/10);
         redraw();
-      }else if(event.key.length===1||event.key==="Enter"){
-        if(event.key.length===1)event.preventDefault();
+      }else if(event.key.length===1){
+        event.preventDefault();
       }
     });
     input.addEventListener("paste",event=>{
       const text=event.clipboardData?.getData("text")||"";
-      const parsed=text.replace(/[$,\\s]/g,"").trim();
-      if(!/^\\d+(?:\\.\\d{0,2})?$/.test(parsed))return;
+      const parsed=text.replace(/[$,\s]/g,"").trim();
+      if(!/^\d+(?:\.\d{0,2})?$/.test(parsed))return;
       event.preventDefault();
       cents=Math.min(999999999999,Math.round(Number(parsed)*100));
       redraw();
     });
     input.addEventListener("input",()=>{
-      // Handles mobile keyboards, autofill, and accessibility input methods.
-      const raw=input.value.replace(/\\D/g,"");
       const displayed=formatter.format(cents/100);
       if(input.value!==displayed){
+        const raw=input.value.replace(/\D/g,"");
         cents=Math.min(999999999999,Number(raw)||0);
         input.value=formatter.format(cents/100);
       }
