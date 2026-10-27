@@ -500,6 +500,7 @@ function initializeWizard(){
     completed=true;
     overlay.classList.add("wizard-finish");
     el("dashboard").hidden=false;
+    playStatusSound(el("goalStatus").className.includes("status-invalid-plan")?"invalid-plan":el("goalStatus").className.includes("status-unreachable")?"unreachable":el("goalStatus").className.includes("status-success")?"success":"needs-ot");
     el("dashboardOtMode").value=el("otMode").value;
     el("dashboardOtDays").value=el("otDays").value;
     window.setTimeout(()=>{overlay.hidden=true;overlay.style.display="none";},240);
