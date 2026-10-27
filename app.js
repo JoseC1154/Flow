@@ -213,6 +213,13 @@ function initializeWizard(){
   overlay.setAttribute("aria-label","Set up your earnings plan");
   document.body.appendChild(overlay);
   overlay.appendChild(panel);
+  const welcome=document.createElement("section");
+  welcome.className="wizard-welcome panel";
+  welcome.setAttribute("aria-labelledby","welcomeTitle");
+  welcome.innerHTML='<div class="welcome-symbol" aria-hidden="true">↗</div><p class="welcome-kicker">WELCOME TO PAYPATH</p><h2 id="welcomeTitle">Your earnings goal. <span>A clearer path.</span></h2><p>Plan your annual gross earnings with guaranteed regular tours, time-and-a-half overtime, vacation weeks and a year-end forecast.</p><p class="welcome-detail">Four quick steps to build your plan. Adjust overtime anytime on the dashboard.</p><button type="button" id="beginSetup">Get started →</button>';
+  overlay.insertBefore(welcome,panel);
+  panel.hidden=true;
+  panel.style.display="none";
   const fields=Array.from(form.querySelectorAll(".fields > label"));
   const groups=[
     ["dateMode","customDate"],
@@ -245,6 +252,8 @@ function initializeWizard(){
   let transitioning=false;
   const fieldIds=(label)=>label.querySelector("input,select")?.id;
   function renderStep(){
+    const numberBadge=panel.querySelector(".section-title .number");
+    if(numberBadge)numberBadge.textContent=String(step+1).padStart(2,"0");
     existingHeading.textContent=headings[step][0];
     existingSubtitle.textContent=headings[step][1];
     fields.forEach(label=>{
@@ -283,6 +292,25 @@ function initializeWizard(){
     }
     return true;
   }
+  function showWelcome(){
+    panel.hidden=true;
+    panel.style.display="none";
+    welcome.hidden=false;
+    welcome.style.display="";
+    overlay.setAttribute("aria-label","Welcome to PayPath");
+    el("beginSetup").focus();
+  }
+  el("beginSetup").addEventListener("click",()=>{
+    welcome.hidden=true;
+    welcome.style.display="none";
+    panel.hidden=false;
+    panel.style.display="";
+    panel.classList.add("wizard-enter");
+    overlay.setAttribute("aria-label","Set up your earnings plan");
+    renderStep();
+    panel.querySelector(".fields select:not([disabled]), .fields input:not([disabled])")?.focus();
+    window.setTimeout(()=>panel.classList.remove("wizard-enter"),230);
+  });
   el("wizardBack").addEventListener("click",()=>stepChange(Math.max(0,step-1)));
   el("wizardNext").addEventListener("click",()=>{
     if(!validateStep())return;
@@ -311,7 +339,7 @@ function initializeWizard(){
     el("dashboard").hidden=true;
     overlay.hidden=false;overlay.style.display="flex";
     overlay.classList.remove("wizard-finish");
-    renderStep();window.scrollTo({top:0,behavior:"smooth"});
+    renderStep();showWelcome();window.scrollTo({top:0,behavior:"smooth"});
   });
   // Only the hourly wage persists; financial totals remain transient.
   const storageKey="PAYPATH_HOURLY_WAGE_V1";
@@ -326,6 +354,7 @@ function initializeWizard(){
     }
   });
   renderStep();
+  showWelcome();
   calculate();
 }
 initializeWizard();
