@@ -42,14 +42,14 @@
 ## Guided setup invariants
 - The initial input flow uses one existing panel as an animated, four-step dialog; never duplicate the calculator or page.
 - The final dashboard must always allow editing planned overtime independently from the setup dialog and expose a working **Start over** action.
-- Store **only** the user's hourly base wage in local storage, under `PAYPATH_HOURLY_WAGE_V1`; do not persist YTD, goals, or other financial inputs without explicit direction.
+- User has authorized remembering inputs locally. Save entered earnings, goals, wage, date and OT/vacation settings in browser local storage under `PAYPATH_INPUT_PREFERENCES_V1`, retaining existing hourly wage compatibility under `PAYPATH_HOURLY_WAGE_V1`. Never transmit them remotely.
 - Support `prefers-reduced-motion`, keyboard focus, and small-screen dialog scrolling.
 - Maintain the shared dropdown/stepper aesthetics for any future setup controls and dashboard inputs.
 
 ## Goal feedback
 - Keep success (green), additional feasible OT (amber), and goal beyond capacity (red) distinct by text and icon, not just color.
 - Preserve 20 encouraging messages, rotated only when the forecast status changes.
-- Sound remains off by default and opt-in, with gentle locally synthesized cues on transitions to success or unreachable. Never depend on sound for vital information.
+- Sound is enabled by default with bright but moderate-volume locally synthesized cues for success and unreachable/invalid OT plans, never a copy of a copyrighted game sound. Phone autoplay policies and silent mode can suppress playback. Never depend on sound for vital information.
 
 ## Validation checklist
 - Verify the first-line signature before and after editing each file.
