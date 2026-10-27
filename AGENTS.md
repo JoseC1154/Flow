@@ -29,6 +29,11 @@
 - Projected year-end gross = YTD earnings + estimated remaining guaranteed regular pay + planned OT pay.
 
 
+## Welcome and wizard numbering
+- Open with the branded PayPath welcome panel explaining the app purpose and a Get started action.
+- The step badge number must update with the wizard step (01–04); do not leave static “01” in all screens.
+- Start over should return to the welcome screen. Respect reduced-motion preferences and accessible focus.
+
 ## Guided setup invariants
 - The initial input flow uses one existing panel as an animated, four-step dialog; never duplicate the calculator or page.
 - The final dashboard must always allow editing planned overtime independently from the setup dialog and expose a working **Start over** action.
